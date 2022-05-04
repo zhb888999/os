@@ -15,7 +15,7 @@ header_start:
     dd 8    ; size
 header_end:
     mov esp, stack_top
-    mov edi, ebx       ; move Multiboot info pointer to edi
+    mov [multiboot_info], ebx       ; move Multiboot info pointer to edi
 
     call setup_page_tables
     call enable_paging
@@ -68,6 +68,8 @@ long_mode_start:
     hlt
 
 section .bss
+multiboot_info:
+    dd 0
 align 4096
 p4_table:
     resb 4096
@@ -84,4 +86,4 @@ gdt64:
     dq (1<<43) | (1<<44) | (1<<47) | (1<<53) ; code segment
 gdt_ptr:
     dw 0x10 - 1
-    dq gdt64
+    dd gdt64

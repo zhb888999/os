@@ -1,5 +1,5 @@
 
-.global  _start
+.global  _start, multiboot_info
 
 .section .text
 .code32
@@ -16,7 +16,7 @@ header_start:
     .long 8
 header_end:
     movl $stack_top, %esp
-    movl %ebx, %edi
+    movl %ebx, multiboot_info
 
     call setup_page_tables
     call enable_paging
@@ -71,6 +71,8 @@ long_mode_start:
     hlt
 
 .section .data
+multiboot_info:
+    .long 0
 .align 4096
 p4_table:
     .fill 512, 8, 0
@@ -87,5 +89,3 @@ gdt64:
 gdt_ptr:
     .short 0x10 - 1
     .long gdt64
-
-

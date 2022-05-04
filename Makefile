@@ -1,10 +1,13 @@
-# AS := nasm -felf64
 
-LD := ld
-LDFLAGES :=
-CC := gcc
-CFLAGES := -Wall -Wstrict-prototypes -O2 -c -fno-pic -fno-stack-protector -nostdinc -nostdlib -fno-builtin -Wmain
-OBJ := main.o
+INCLUDE := $(abspath include)
+
+export LD := ld
+export LDFLAGES :=
+export CC := gcc
+export CPPFLAGS := -I$(INCLUDE)
+export CFLAGES := -Wall -Wstrict-prototypes -O2 -fno-pic -nostdinc -nostdlib -fno-builtin -fno-stack-protector -c
+
+OBJS := main.o
 
 ISO := iso
 
@@ -12,13 +15,15 @@ export BUILD_DIR := $(abspath build)
 
 all: $(ISO)
 
-$(OBJ): %.o: %.c
+$(OBJS): %.o: %.c
 	@mkdir -p $(BUILD_DIR)
-	@$(CC) -c $(CFLAGS) $< -o $(BUILD_DIR)/$@
+	@$(CC) $(CPPFLAGS) $(CFLAGES) $< -o $(BUILD_DIR)/$@
 
-kernel.bin: $(OBJ)
+kernel.bin: $(OBJS)
 	@$(MAKE) -C boot
-	@cd $(BUILD_DIR); $(LD) -o $@ boot.o $(OBJ)
+	@$(MAKE) -C dev
+	@$(MAKE) -C kernel
+	@cd $(BUILD_DIR); $(LD) $(LDFLAGES) -o $@ *.o
 
 
 $(ISO): kernel.bin grub.cfg
@@ -29,7 +34,10 @@ $(ISO): kernel.bin grub.cfg
 	@rm -rf isofile
 
 run: $(ISO)
-	@qemu-system-x86_64 -cdrom iso
+	@qemu-system-x86_64 -cdrom iso -m 4096 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04
+
+test: $(ISO)
+	@qemu-system-x86_64 -cdrom iso -m 4096 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -display none
 
 	
 clean:
