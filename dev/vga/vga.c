@@ -42,9 +42,9 @@ void newline(void) {
     col = 0;
     return;
   }
-  for(uint32_t i = 0; i < climit; i++) {
-    *(buffer + (row - 1) * climit + i) = *(buffer + row * climit + i);
-  }
+  for(uint32_t i = 1; i < rlimit; i++) 
+    for(uint32_t j = 0; j < climit; j++)
+      *(buffer + (i - 1) * climit + j) = *(buffer + i * climit + j);
   clear_row(rlimit - 1);
   col = 0;
 }

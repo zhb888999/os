@@ -23,6 +23,8 @@ kernel.bin: $(OBJS)
 	@$(MAKE) -C boot
 	@$(MAKE) -C dev
 	@$(MAKE) -C kernel
+	@$(MAKE) -C multiboot
+	@$(MAKE) -C mm
 	@cd $(BUILD_DIR); $(LD) $(LDFLAGES) -o $@ *.o
 
 
