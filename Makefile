@@ -36,8 +36,7 @@ $(ISO): kernel.bin grub.cfg
 	@rm -rf isofile
 
 run: $(ISO)
-	@qemu-system-x86_64 -cdrom iso -m 4096 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04
-
+	@qemu-system-x86_64 -cdrom iso -m 8192 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -M hpet=on 
 test: $(ISO)
 	@qemu-system-x86_64 -cdrom iso -m 4096 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -display none
 

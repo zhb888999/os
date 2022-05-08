@@ -2,6 +2,7 @@
 #define MULTIBOOT2_H
 
 #include <int.h>
+#include <kernel/init.h>
 
 #define MULTIBOOT_SEARCH                        32768
 #define MULTIBOOT_HEADER_ALIGN                  8
@@ -414,7 +415,7 @@ typedef struct
   elf64_xword sh_entsize; /* Size of entries, if section has table */
 } Elf64Shdr;
 
-void parse_multiboot2(uint32_t addr);
+int parse_multiboot2(uint32_t addr, MemorySegmentPage *free, MemorySegment *kernel);
 
 #endif /*  ! ASM_FILE */
 

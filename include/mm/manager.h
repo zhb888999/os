@@ -19,5 +19,6 @@ typedef struct __MMFreePageManager MMFreePageManager;
 void init_mm_page_manager(MMFreePageManager *);
 int mm_free_pages(MMFreePageManager *, uint64_t head, uint64_t length);
 uint16_t mm_alloc_pages(MMFreePageManager *, uint64_t length);
+void mm_info(MMFreePageManager *);
 
 #endif //MM_MANAGER_H

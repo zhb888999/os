@@ -1,5 +1,6 @@
 #include <int.h>
 #include <mm/manager.h>
+#include <dev/vga.h>
 
 void init_mm_page_manager(MMFreePageManager *man) {
     man->frees = 0;
@@ -29,6 +30,7 @@ uint16_t mm_alloc_pages(MMFreePageManager *man, uint64_t length) {
 
 /* success return 0 else -1 */
 int mm_free_pages(MMFreePageManager *man, uint64_t head, uint64_t length) {
+    if(length < 1) return 0;
     uint64_t i;
     for(i = 0; i < man->frees; i++) {
         if(man->free[i].head > head) break;
@@ -70,4 +72,14 @@ int mm_free_pages(MMFreePageManager *man, uint64_t head, uint64_t length) {
     man->losts++;
     man->lostsize += length;
     return -1;
+}
+
+void mm_info(MMFreePageManager *man) {
+    uint64_t sum = 0;
+    printf("fress:%D maxfress:%D losts:%D lostsize:%D\n", man->frees, man->maxfress, man->losts, man->lostsize);
+    for(uint64_t i = 0; i < man->frees; i++) {
+        printf("> %D %D\n", man->free[i].head, man->free[i].length);
+        sum += man->free[i].length;
+    }
+    printf("sum: %D", sum);
 }

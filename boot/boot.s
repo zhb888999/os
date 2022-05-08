@@ -1,5 +1,5 @@
 
-.global  _start, multiboot_info
+.global  _start, multiboot_info, gdt64_table, idt_table
 
 .section .text
 .code32
@@ -21,7 +21,8 @@ header_end:
     call setup_page_tables
     call enable_paging
 
-    lgdt [gdt_ptr]
+    lgdt gdt_ptr
+    lidt idt_ptr
 
     ljmp $0x8, $long_mode_start
 
@@ -79,13 +80,25 @@ p4_table:
 p3_table:
     .fill 512, 8, 0
 
+gdt64_table:
+    .quad 0
+    .quad 0x0020980000000000 
+    .fill 510,8, 0
+gdt64_table_end:
+
+idt_table:
+    .fill 512, 8, 0
+idt_table_end:
+
+gdt_ptr:
+    // .short 0x10 - 1
+    .short gdt64_table - gdt64_table_end - 1
+    .long gdt64_table
+
+idt_ptr:
+    .short idt_table - idt_table_end - 1
+    .long idt_table
+
 stack_bottom:
     .fill 2048, 8, 0
 stack_top:
-
-gdt64:
-    .quad 0
-    .quad 0x0020980000000000 
-gdt_ptr:
-    .short 0x10 - 1
-    .long gdt64
