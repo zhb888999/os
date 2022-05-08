@@ -21,7 +21,7 @@ void sprintf(char *buffer, const char *format, ...) {
             *buffer++ = '%';
             break;
           case 'c':
-            *buffer++ = va_arg(valist, char);
+            *buffer++ = va_arg(valist, uint32_t);
             break;
           case 'b':
             itoa(buf, 2, va_arg(valist, uint32_t));

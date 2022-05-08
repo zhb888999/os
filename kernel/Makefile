@@ -1,5 +1,5 @@
 BUILD_DIR ?= ../build
-OBJS := format.o
+OBJS := format.o init.o
 
 all: $(OBJS)
 	@$(MAKE) -C interrupt

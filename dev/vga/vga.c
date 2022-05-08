@@ -80,7 +80,7 @@ void printf(const char *format, ...) {
             write_byte(ch);
             break;
           case 'c':
-            write_byte(va_arg(valist, char));
+            write_byte(va_arg(valist, uint32_t));
             break;
           case 'b':
             itoa(buf, 2, va_arg(valist, uint32_t));

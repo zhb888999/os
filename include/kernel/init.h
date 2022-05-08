@@ -3,17 +3,25 @@
 
 #include <int.h>
 
-#define P4 0
-#define P3 1
-#define P2 2
-#define GDT 3
-#define IDT 4
-#define COMMON 5
+#define P4_HEAD 0
+#define P4_SIZE 1
+
+#define P3_HEAD 1
+#define P3_SIZE 1
+
+#define P2_HEAD 2
+#define P2_SIZE 16
+
+#define GDT_HEAD 18
+#define IDT_HEAD 19
+
+#define COMMON_HEAD 20
+#define COMMON_SIZE 1
 
 #define COMM_GDT_PTR 0
 #define COMM_IDT_PTR 10
 
-#define ALLOC_PAGE_SIZE = 6
+#define ALLOC_PAGE_SIZE 20
 
 typedef struct {
     uint64_t min;
@@ -28,5 +36,7 @@ typedef struct {
 
 typedef MemorySegment MemorySegmentPage;
 #define MAX_FREE_SEGMENT_COUNT 10
+
+void initialize(void);
 
 #endif //KERNEL_BASE_H

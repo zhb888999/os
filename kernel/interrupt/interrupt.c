@@ -1,6 +1,6 @@
 #include <kernel/interrupt/interrupt.h>
 
-extern void default_interrupt();
+extern void default_interrupt(void);
 extern InterruptDescriptor64 idt_table[];
 
 inline void set_interrupt(uint32_t index, uint8_t gate_type, uint8_t ist, void *addr) {

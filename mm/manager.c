@@ -53,7 +53,7 @@ int mm_free_pages(MMFreePageManager *man, uint64_t head, uint64_t length) {
     if(i < man->frees) {
         if(head + length == man->free[i].head) {
             man->free[i].head = head;
-            man->free[i].length = length;
+            man->free[i].length += length;
             return 0;
         }
     }
@@ -78,8 +78,11 @@ void mm_info(MMFreePageManager *man) {
     uint64_t sum = 0;
     printf("fress:%D maxfress:%D losts:%D lostsize:%D\n", man->frees, man->maxfress, man->losts, man->lostsize);
     for(uint64_t i = 0; i < man->frees; i++) {
-        printf("> %D %D\n", man->free[i].head, man->free[i].length);
+        printf("  [%D] %D-%D %D\n", i, 
+                   man->free[i].head, 
+                   man->free[i].head + man->free[i].length, 
+                   man->free[i].length);
         sum += man->free[i].length;
     }
-    printf("sum: %D", sum);
+    printf("sum:%D\n", sum);
 }
