@@ -1,7 +1,7 @@
 #include <kernel/interrupt/interrupt.h>
 
 extern void default_interrupt(void);
-extern InterruptDescriptor64 idt_table[];
+extern InterruptDescriptor128 idt_table[];
 
 inline void set_interrupt(uint32_t index, uint8_t gate_type, uint8_t ist, void *addr) {
     idt_table[index].offset_1 = (uint64_t)addr & 0xffff;

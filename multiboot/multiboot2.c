@@ -1,6 +1,6 @@
 #include <int.h>
 #include <multiboot/multiboot2.h>
-#include <mm/page.h>
+#include <arch/x86_64.h>
 #include <kernel/init.h>
 
 

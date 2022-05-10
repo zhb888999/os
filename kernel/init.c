@@ -2,7 +2,7 @@
 #include <multiboot/multiboot2.h>
 #include <kernel/interrupt/interrupt.h>
 #include <kernel/init.h>
-#include <mm/page.h>
+#include <arch/x86_64.h>
 #include <dev/serial.h>
 
 

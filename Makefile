@@ -21,6 +21,7 @@ $(OBJS): %.o: %.c
 
 kernel.bin: $(OBJS)
 	@$(MAKE) -C boot
+	@$(MAKE) -C arch
 	@$(MAKE) -C dev
 	@$(MAKE) -C kernel
 	@$(MAKE) -C multiboot
