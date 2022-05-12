@@ -20,9 +20,9 @@ typedef struct {
 #define SEGMENT_DPL_0 0x00
 #define SEGMENT_DPL_1 0x20
 #define SEGMENT_DPL_2 0x40
-#define SEGMENT_DPL_4 0x60
+#define SEGMENT_DPL_3 0x60
 #define SEGMENT_PRESENT 0x80
-#define SEGMENT_ABL 0x1000
+#define SEGMENT_AVL 0x1000
 
 #define SEGMENT_DATA_TYPE_A 0x1
 #define SEGMENT_DATA_TYPE_W 0x2
@@ -57,6 +57,32 @@ typedef struct {
 #define set_tss_segment_attr(value) (0x09 | (value))
 
 typedef struct {
+	uint32_t  reserved0;
+	uint64_t rsp0;
+	uint64_t rsp1;
+	uint64_t rsp2;
+	uint64_t reserved1;
+	uint64_t ist1;
+	uint64_t ist2;
+	uint64_t ist3;
+	uint64_t ist4;
+	uint64_t ist5;
+	uint64_t ist6;
+	uint64_t ist7;
+	uint64_t reserved2;
+	uint16_t reserved3;
+	uint16_t iomapbaseaddr;
+}__attribute__((packed)) TSS64;
+
+#define load_TR(n)                          \
+do{                                         \
+	__asm__ __volatile__(	"ltr	%%ax"	\
+				:					        \
+				:"a"(n << 3)				\
+				:"memory");				    \
+}while(0)
+
+typedef struct {
     uint16_t offset_1;
     uint16_t selector;
     uint8_t zero_must;
@@ -67,6 +93,8 @@ typedef struct {
 } __attribute__((packed)) SegmentCGDDescriptor128;
 
 #define set_cgd_segment_attr(value) (0x0c | (value))
+
+
 
 #define page_id(addr) ((addr) >> 12)
 

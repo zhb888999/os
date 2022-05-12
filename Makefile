@@ -5,7 +5,7 @@ export LD := ld
 export LDFLAGES :=
 export CC := gcc
 export CPPFLAGS := -I$(INCLUDE)
-export CFLAGES := -Wall -Wstrict-prototypes -O2 -fno-pic -nostdinc -nostdlib -fno-builtin -fno-stack-protector -c
+export CFLAGES := -Wall -Wstrict-prototypes -O1 -fno-pic -nostdinc -nostdlib -fno-builtin -fno-stack-protector -c
 
 OBJS := main.o
 

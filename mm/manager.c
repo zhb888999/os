@@ -2,12 +2,6 @@
 #include <mm/manager.h>
 #include <dev/vga.h>
 
-void init_mm_page_manager(MMFreePageManager *man) {
-    man->frees = 0;
-    man->maxfress = 0;
-    man->losts = 0;
-    man->lostsize = 0;
-}
 
 uint16_t mm_alloc_pages(MMFreePageManager *man, uint64_t length) {
     uint64_t head;
