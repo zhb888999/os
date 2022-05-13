@@ -1,4 +1,5 @@
-.global default_interrupt; default_interrupt:
+.global default_interrupt
+default_interrupt:
     cld
     pushq   %rax
     pushq   %rbx

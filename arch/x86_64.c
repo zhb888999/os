@@ -15,11 +15,11 @@ inline void set_segment_data(SegmentDescriptor64 *des, uint16_t attr) {
 }
 
 inline void set_segment_tss(SegmentTSSDescriptor128 *des, uint64_t baseaddr, uint32_t length, uint16_t attr) {
-    des->length_1 = length << 16 >> 16;
-    des->baseaddr_1 = baseaddr << 48 >> 48;
-    des->baseaddr_2 = baseaddr << 40 >> 56;
-    des->attributes_length_2 = (length << 12 >> 16) | set_cgd_segment_attr(attr);
-    des->baseaddr_3 = baseaddr << 32 >> 56;
+    des->length_1 = length & 0xffff;
+    des->baseaddr_1 = baseaddr & 0xffff;
+    des->baseaddr_2 = (baseaddr & 0xff0000) >> 16;
+    des->attributes_length_2 = ((length & 0xf0000) >> 8) | set_tss_segment_attr(attr);
+    des->baseaddr_3 = (baseaddr & 0xff000000) >> 24;
     des->baseaddr_4 = baseaddr >> 32;
     des->zero = 0;
 }

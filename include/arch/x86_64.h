@@ -122,4 +122,16 @@ void set_idt(InterruptDescriptor128 *des, uint64_t offset, uint16_t selector, ui
 #define PAGE_NO_EXECUTE 0x8000000000000000
 
 #define page_entry(phyaddr, flags) ((phyaddr) & 0x1ffffffffff000 | (flags))
+
+#define GATE_INTERRUPT              0x8E
+#define GATE_TRAP                   0x8F
+#define GATE_SYSTEM                 0xEF
+#define GATE_SYSTEM_INTERRUPT       0xEF
+
+#define enable_interrupt() __asm__ ("sti"::)
+
+#define disable_interrupt() __asm__ ("cti"::)
+
+
+#define hlt() __asm__("hlt"::)
 #endif // ARCH_X86_64_H
