@@ -21,9 +21,17 @@ uint64_t kernel_base_page_head;
 
 static void init_pages(MemorySegmentPage *segments, int segment_count);
 static void init_gdt(void);
-static void set_interrupt(uint32_t index, uint8_t type, uint8_t ist, uint64_t addr);
 static void init_interrupt(void);
 
+static void debug_print_idt(InterruptDescriptor128 *idt) {
+    printsf("idt.offset_1: 0x%x\n", idt->offset_1);
+    printsf("idt.ist: 0x%x\n", idt->ist);
+    printsf("idt.type: 0x%x\n", idt->type_attributes);
+    printsf("idt.offset_2: 0x%x\n", idt->offset_2);
+    printsf("idt.offset_3: 0x%x\n", idt->offset_3);
+    printsf("idt.selector: x0%x\n", idt->selector);
+    printsf("idt.zero: 0x%x\n", idt->zero);
+}
 
 void initialize() {
     MemorySegment segments[MAX_FREE_SEGMENT_COUNT];
@@ -32,7 +40,6 @@ void initialize() {
     kernel_base_page_head = mm_alloc_pages(&mm_page_manager, ALLOC_PAGE_SIZE);
     init_gdt();
     init_interrupt();
-    enable_interrupt();
 }
 
 static void init_pages(MemorySegmentPage *segments, int segment_count) {
@@ -63,29 +70,34 @@ static void init_gdt(void) {
     set_segment_code(gdt64_table + 3, SEGMENT_PRESENT | SEGMENT_DPL_3 );
     set_segment_data(gdt64_table + 4, SEGMENT_PRESENT | SEGMENT_DATA_TYPE_W | SEGMENT_DPL_3);
     set_segment_tss((SegmentTSSDescriptor128 *)(gdt64_table + 5), (uint64_t)&tss, sizeof(tss), SEGMENT_PRESENT);
-    load_TR(5);
-}
-
-inline static void set_interrupt(uint32_t index, uint8_t type, uint8_t ist, uint64_t addr) {
-    idt_table[index].offset_1 = addr & 0xffff;
-    idt_table[index].ist = ist;
-    idt_table[index].type_attributes = type;
-    idt_table[index].offset_2 = addr  >> 16 & 0xffff;
-    idt_table[index].offset_3 = addr  >> 32;
-    idt_table[index].selector = 0x08;
-    idt_table[index].zero = 0;
+    set_tr_register(5 * 8);
 }
 
 static void init_interrupt(void) {
-    printsf("interrp %X\n", (uint64_t) default_interrupt);
-    for(uint32_t i=0; i < 256; i++) {
-        set_interrupt(i, GATE_INTERRUPT, 0, (uint64_t) default_interrupt);
-    }
-    printsf("idt.offset_1: %x\n", idt_table[0].offset_1);
-    printsf("idt.ist: %x\n", idt_table[0].ist);
-    printsf("idt.type: %x\n", idt_table[0].type_attributes);
-    printsf("idt.offset_2: %x\n", idt_table[0].offset_2);
-    printsf("idt.offset_3: %x\n", idt_table[0].offset_3);
-    printsf("idt.selector: %x\n", idt_table[0].selector);
-    printsf("idt.zero: %x\n", idt_table[0].zero);
+    for(uint32_t i=0; i < 256; i++) 
+        set_intr_gate(idt_table, i, 0, (uint64_t) default_interrupt);
+    set_trap_gate(idt_table, 0, 1, (uint64_t) divide_error);
+    set_trap_gate(idt_table, 1, 1, (uint64_t) debug);
+    set_intr_gate(idt_table, 2, 1, (uint64_t) nmi);
+    set_system_gate(idt_table, 3, 1, (uint64_t) int3);
+    set_system_gate(idt_table, 4, 1, (uint64_t) overflow);
+    set_system_gate(idt_table, 5, 1, (uint64_t) bounds);
+    set_trap_gate(idt_table, 6, 1, (uint64_t) undefined_opcode);
+    set_trap_gate(idt_table, 7, 1, (uint64_t) dev_not_available);
+    set_trap_gate(idt_table, 8, 1, (uint64_t) double_fault);
+    set_trap_gate(idt_table, 9, 1, (uint64_t) coprocessor_segment_overrun);
+    set_trap_gate(idt_table, 10, 1, (uint64_t) invalid_tss);
+    set_trap_gate(idt_table, 11, 1, (uint64_t) segment_not_present);
+    set_trap_gate(idt_table, 12, 1, (uint64_t) stack_segment_fault);
+    set_trap_gate(idt_table, 13, 1, (uint64_t) general_protection);
+    set_trap_gate(idt_table, 14, 1, (uint64_t) page_fault);
+    //15 reserved, can't use
+    set_trap_gate(idt_table, 16, 1, (uint64_t) x87_fpu_error);
+    set_trap_gate(idt_table, 17, 1, (uint64_t) alignment_check);
+    set_trap_gate(idt_table, 18, 1, (uint64_t) machine_check);
+    set_trap_gate(idt_table, 19, 1, (uint64_t) simd_exception);
+    set_trap_gate(idt_table, 20, 1, (uint64_t) virtualization_exception);
+
+    // debug_print_idt(idt_table);
+    // enable_interrupt();
 }

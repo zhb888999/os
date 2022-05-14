@@ -1,8 +1,8 @@
 AS := as
 
 BUILD_DIR ?= ../../build
-OBJS_AS := default_interrupt.o
-OBJS_CC :=
+OBJS_AS := entry.o
+OBJS_CC := interrupt.o
 
 all: $(OBJS_AS) $(OBJS_CC)
 

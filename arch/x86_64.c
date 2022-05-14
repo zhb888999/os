@@ -35,11 +35,24 @@ inline void set_segment_cgd(SegmentCGDDescriptor128 *des, uint64_t offset, uint1
 }
 
 inline void set_idt(InterruptDescriptor128 *des, uint64_t offset, uint16_t selector, uint8_t ist, uint8_t type_attributes) {
-    des->offset_1 = offset << 48 >> 48;
+    des->offset_1 = offset & 0xffff;
+    des->ist = ist;
     des->selector = selector;
     des->zero = 0;
     des->type_attributes = set_cgd_segment_attr(type_attributes); 
-    des->offset_2 = offset << 32 >> 48;
+    des->offset_2 = offset  >> 16 & 0xffff;
     des->offset_3 = offset >> 32;
     des->zero = 0;
+}
+
+inline void set_trap_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr) {
+    set_idt(idt_table + index, addr, IDT_SELECTOR, ist, GATE_TRAP);
+}
+
+inline void set_intr_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr) {
+    set_idt(idt_table + index, addr, IDT_SELECTOR, ist, GATE_INTERRUPT);
+}
+
+inline void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr) {
+    set_idt(idt_table + index, addr, IDT_SELECTOR, ist, GATE_SYSTEM);
 }

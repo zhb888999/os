@@ -2,20 +2,8 @@
 #define ARCH_X86_64_H
 #include <int.h>
 
-#define GATE_INTERRUPT              0x8E
-#define GATE_TRAP                   0x8F
-#define GATE_SYSTEM                 0xEF
-#define GATE_SYSTEM_INTERRUPT       0xEF
 
-typedef struct {
-   uint16_t offset_1;        // offset bits 0..15
-   uint16_t selector;        // a code segment selector in GDT or LDT
-   uint8_t  ist;             // bits 0..2 holds Interrupt Stack Table offset, rest of bits zero.
-   uint8_t  type_attributes; // gate type, dpl, and p fields
-   uint16_t offset_2;        // offset bits 16..31
-   uint32_t offset_3;        // offset bits 32..63
-   uint32_t zero;            // reserved
-} __attribute__((packed)) InterruptDescriptor128;
+
 
 #define SEGMENT_DPL_0 0x00
 #define SEGMENT_DPL_1 0x20
@@ -57,6 +45,25 @@ typedef struct {
 #define set_tss_segment_attr(value) (0x09 | (value))
 
 typedef struct {
+    uint16_t offset_1;
+    uint16_t selector;
+    uint8_t zero_must;
+    uint8_t attributes;
+    uint16_t offset_2;
+    uint32_t offset_3;
+    uint32_t zero;
+} __attribute__((packed)) SegmentCGDDescriptor128;
+
+#define set_cgd_segment_attr(value) (0x0c | (value))
+
+
+void set_segment_code(SegmentDescriptor64 *des, uint16_t attr);
+void set_segment_data(SegmentDescriptor64 *des, uint16_t attr);
+void set_segment_tss(SegmentTSSDescriptor128 *des, uint64_t baseaddr, uint32_t length, uint16_t attr);
+void set_segment_cgd(SegmentCGDDescriptor128 *des, uint64_t offset, uint16_t selector, uint8_t attr);
+
+/* TSS setting */
+typedef struct {
 	uint32_t  reserved0;
 	uint64_t rsp0;
 	uint64_t rsp1;
@@ -74,36 +81,34 @@ typedef struct {
 	uint16_t iomapbaseaddr;
 }__attribute__((packed)) TSS64;
 
-#define load_TR(n)                          \
-do{                                         \
-	__asm__ __volatile__(	"ltr	%%ax"	\
-				:					        \
-				:"a"(n << 3)				\
-				:"memory");				    \
-}while(0)
+#define set_tr_register(n) __asm__ ("ltr %%ax"::"a"(n))
+
+/* Interrupt setting */
+#define GATE_INTERRUPT 0x8E
+#define GATE_TRAP 0x8F
+#define GATE_SYSTEM 0xEF
+#define IDT_SELECTOR 0x08
+
+#define enable_interrupt() __asm__ ("sti"::)
+#define disable_interrupt() __asm__ ("cti"::)
 
 typedef struct {
-    uint16_t offset_1;
-    uint16_t selector;
-    uint8_t zero_must;
-    uint8_t attributes;
-    uint16_t offset_2;
-    uint32_t offset_3;
-    uint32_t zero;
-} __attribute__((packed)) SegmentCGDDescriptor128;
+   uint16_t offset_1;        // offset bits 0..15
+   uint16_t selector;        // a code segment selector in GDT or LDT
+   uint8_t  ist;             // bits 0..2 holds Interrupt Stack Table offset, rest of bits zero.
+   uint8_t  type_attributes; // gate type, dpl, and p fields
+   uint16_t offset_2;        // offset bits 16..31
+   uint32_t offset_3;        // offset bits 32..63
+   uint32_t zero;            // reserved
+} __attribute__((packed)) InterruptDescriptor128;
 
-#define set_cgd_segment_attr(value) (0x0c | (value))
-
-
-
-#define page_id(addr) ((addr) >> 12)
-
-void set_segment_code(SegmentDescriptor64 *des, uint16_t attr);
-void set_segment_data(SegmentDescriptor64 *des, uint16_t attr);
-void set_segment_tss(SegmentTSSDescriptor128 *des, uint64_t baseaddr, uint32_t length, uint16_t attr);
-void set_segment_cgd(SegmentCGDDescriptor128 *des, uint64_t offset, uint16_t selector, uint8_t attr);
 void set_idt(InterruptDescriptor128 *des, uint64_t offset, uint16_t selector, uint8_t ist, uint8_t type_attributes);
+void set_trap_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr);
+void set_intr_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr);
+void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr);
 
+/* Page setting */
+#define page_id(addr) ((addr) >> 12)
 #define virtaddr_l4(addr) ((addr) >> 39 >> 0x1ff)
 #define virtaddr_l3(addr) ((addr) >> 30 >> 0x1ff)
 #define virtaddr_l2(addr) ((addr) >> 21 >> 0x1ff)
@@ -123,15 +128,7 @@ void set_idt(InterruptDescriptor128 *des, uint64_t offset, uint16_t selector, ui
 
 #define page_entry(phyaddr, flags) ((phyaddr) & 0x1ffffffffff000 | (flags))
 
-#define GATE_INTERRUPT              0x8E
-#define GATE_TRAP                   0x8F
-#define GATE_SYSTEM                 0xEF
-#define GATE_SYSTEM_INTERRUPT       0xEF
-
-#define enable_interrupt() __asm__ ("sti"::)
-
-#define disable_interrupt() __asm__ ("cti"::)
-
+/* Other */
 
 #define hlt() __asm__("hlt"::)
 #endif // ARCH_X86_64_H
