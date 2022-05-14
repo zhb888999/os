@@ -66,11 +66,11 @@ void _dev_not_available(uint64_t regs,uint64_t error_code)
     for(;;) hlt();
 }
 
-void _double_fault(uint64_t regs,uint64_t error_code)
+void _double_fault(uint64_t regs, uint64_t error_code)
 {
     printf("double_fault -> %X\n", error_code);
     printsf("double_fault -> %X\n", error_code);
-    for(;;) hlt();
+    // for(;;) hlt();
 }
 
 void _coprocessor_segment_overrun(uint64_t regs,uint64_t error_code)
@@ -101,10 +101,10 @@ void _stack_segment_fault(uint64_t regs,uint64_t error_code)
     for(;;) hlt();
 }
 
-void _general_protection(uint64_t regs,uint64_t error_code)
+void _general_protection(uint64_t regs, uint64_t error_code)
 {
-    printf("general_protection -> %X\n", error_code);
-    printsf("general_protection -> %X\n", error_code);
+    printf("general_protection -> 0x%X\n", error_code);
+    printsf("general_protection -> 0x%X\n", error_code);
     for(;;) hlt();
 }
 

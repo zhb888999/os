@@ -3,6 +3,7 @@
 #include <kernel/interrupt.h>
 #include <kernel/init.h>
 #include <arch/x86_64.h>
+#include <asm/io.h>
 
 #include <dev/serial.h>
 #include <dev/vga.h>
@@ -11,7 +12,9 @@
 extern uint32_t multiboot_info;
 
 extern SegmentDescriptor64 gdt64_table[512];
+extern uint64_t gdt_ptr;
 extern InterruptDescriptor128 idt_table[256];
+extern uint64_t idt_ptr;
 
 
 TSS64 tss;
@@ -32,6 +35,7 @@ static void debug_print_idt(InterruptDescriptor128 *idt) {
     printsf("idt.selector: x0%x\n", idt->selector);
     printsf("idt.zero: 0x%x\n", idt->zero);
 }
+
 
 void initialize() {
     MemorySegment segments[MAX_FREE_SEGMENT_COUNT];
@@ -69,35 +73,55 @@ static void init_gdt(void) {
     set_segment_data(gdt64_table + 2, SEGMENT_PRESENT | SEGMENT_DATA_TYPE_W);
     set_segment_code(gdt64_table + 3, SEGMENT_PRESENT | SEGMENT_DPL_3 );
     set_segment_data(gdt64_table + 4, SEGMENT_PRESENT | SEGMENT_DATA_TYPE_W | SEGMENT_DPL_3);
+    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 0));
+    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 1));
+    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 2));
+    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 3));
+    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 4));
     set_segment_tss((SegmentTSSDescriptor128 *)(gdt64_table + 5), (uint64_t)&tss, sizeof(tss), SEGMENT_PRESENT);
     set_tr_register(5 * 8);
 }
 
 static void init_interrupt(void) {
-    for(uint32_t i=0; i < 256; i++) 
-        set_intr_gate(idt_table, i, 0, (uint64_t) default_interrupt);
-    set_trap_gate(idt_table, 0, 1, (uint64_t) divide_error);
-    set_trap_gate(idt_table, 1, 1, (uint64_t) debug);
-    set_intr_gate(idt_table, 2, 1, (uint64_t) nmi);
-    set_system_gate(idt_table, 3, 1, (uint64_t) int3);
-    set_system_gate(idt_table, 4, 1, (uint64_t) overflow);
-    set_system_gate(idt_table, 5, 1, (uint64_t) bounds);
-    set_trap_gate(idt_table, 6, 1, (uint64_t) undefined_opcode);
-    set_trap_gate(idt_table, 7, 1, (uint64_t) dev_not_available);
-    set_trap_gate(idt_table, 8, 1, (uint64_t) double_fault);
-    set_trap_gate(idt_table, 9, 1, (uint64_t) coprocessor_segment_overrun);
-    set_trap_gate(idt_table, 10, 1, (uint64_t) invalid_tss);
-    set_trap_gate(idt_table, 11, 1, (uint64_t) segment_not_present);
-    set_trap_gate(idt_table, 12, 1, (uint64_t) stack_segment_fault);
-    set_trap_gate(idt_table, 13, 1, (uint64_t) general_protection);
-    set_trap_gate(idt_table, 14, 1, (uint64_t) page_fault);
-    //15 reserved, can't use
-    set_trap_gate(idt_table, 16, 1, (uint64_t) x87_fpu_error);
-    set_trap_gate(idt_table, 17, 1, (uint64_t) alignment_check);
-    set_trap_gate(idt_table, 18, 1, (uint64_t) machine_check);
-    set_trap_gate(idt_table, 19, 1, (uint64_t) simd_exception);
-    set_trap_gate(idt_table, 20, 1, (uint64_t) virtualization_exception);
+    // for(uint32_t i=0; i < 256; i++) 
+    //     set_intr_gate(idt_table, i, 0, (uint64_t) default_interrupt);
+    // debug_print_idt(idt_table + 8);
 
-    // debug_print_idt(idt_table);
-    // enable_interrupt();
+    set_trap_gate(idt_table, 0, 0, (uint64_t) divide_error);
+    set_trap_gate(idt_table, 1, 0, (uint64_t) debug);
+    set_intr_gate(idt_table, 2, 0, (uint64_t) nmi);
+    set_system_gate(idt_table, 3, 0, (uint64_t) int3);
+    set_system_gate(idt_table, 4, 0, (uint64_t) overflow);
+    set_system_gate(idt_table, 5, 0, (uint64_t) bounds);
+    set_trap_gate(idt_table, 6, 0, (uint64_t) undefined_opcode);
+    set_trap_gate(idt_table, 7, 0, (uint64_t) dev_not_available);
+    set_trap_gate(idt_table, 8, 0, (uint64_t) double_fault);
+    set_trap_gate(idt_table, 9, 0, (uint64_t) coprocessor_segment_overrun);
+    set_trap_gate(idt_table, 10, 0, (uint64_t) invalid_tss);
+    set_trap_gate(idt_table, 11, 0, (uint64_t) segment_not_present);
+    set_trap_gate(idt_table, 12, 0, (uint64_t) stack_segment_fault);
+    set_trap_gate(idt_table, 13, 0, (uint64_t) general_protection);
+    set_trap_gate(idt_table, 14, 0, (uint64_t) page_fault);
+    //15 reserved, can't use
+    set_trap_gate(idt_table, 16, 0, (uint64_t) x87_fpu_error);
+    set_trap_gate(idt_table, 17, 0, (uint64_t) alignment_check);
+    set_trap_gate(idt_table, 18, 0, (uint64_t) machine_check);
+    set_trap_gate(idt_table, 19, 0, (uint64_t) simd_exception);
+    set_trap_gate(idt_table, 20, 0, (uint64_t) virtualization_exception);
+
+    debug_print_idt(idt_table + 8);
+
+    outb(0x11, 0x20);
+    outb(0x20, 0x21);
+    outb(0x04, 0x21);
+    outb(0x01, 0x21);
+
+    outb(0x11, 0xa0);
+    outb(0x28, 0xa1);
+    outb(0x02, 0xa1);
+    outb(0x01, 0xa1);
+    outb(0xff, 0x21);
+    outb(0xff, 0xa1);
+
+    enable_interrupt();
 }

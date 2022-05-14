@@ -217,7 +217,7 @@ dev_not_available:
 double_fault:
 	pushq	%rax
 	leaq	_double_fault(%rip),	%rax
-	xchgq	%rax,	(%rsp)
+	xchgq	%rax, (%rsp)
 	jmp	error_code
 
 .global coprocessor_segment_overrun

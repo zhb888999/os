@@ -1,5 +1,5 @@
 
-.global  _start, multiboot_info, gdt64_table, idt_table, stack_bottom, stack_top
+.global  _start, multiboot_info, gdt64_table, gdt_ptr, idt_ptr, idt_table, stack_bottom, stack_top
 
 .section .text
 .code32
