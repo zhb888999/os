@@ -128,6 +128,28 @@ void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t 
 
 #define page_entry(phyaddr, flags) ((phyaddr) & 0x1ffffffffff000 | (flags))
 
+/* PIC */
+
+#define PIC_MASTER_ICW1 0x20
+#define PIC_MASTER_ICW2 0x21
+#define PIC_MASTER_ICW3 0x21
+#define PIC_MASTER_ICW4 0x21
+#define PIC_MASTER_OCW1 0x21
+#define PIC_MASTER_OCW2 0x20
+#define PIC_MASTER_OCW3 0x20
+
+#define PIC_SLAVE_ICW1 0xa0
+#define PIC_SLAVE_ICW2 0xa1
+#define PIC_SLAVE_ICW3 0xa1
+#define PIC_SLAVE_ICW4 0xa1
+#define PIC_SLAVE_OCW1 0xa1
+#define PIC_SLAVE_OCW2 0xa0
+#define PIC_SLAVE_OCW3 0xa0
+
+void setup_pic(uint8_t irq_start_id);
+void pci_mask_master(uint8_t mask);
+void pci_mask_slave(uint8_t mask);
+
 /* Other */
 
 #define hlt() __asm__("hlt"::)

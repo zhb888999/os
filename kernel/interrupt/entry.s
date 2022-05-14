@@ -54,7 +54,7 @@ default_interrupt:
 
 	iretq
 
-recover_and_return:
+exception_recover_and_return:
     popq	%r15
 	popq	%r14
 	popq	%r13
@@ -82,7 +82,7 @@ recover_and_return:
 ret_from_exception:
 .global ret_from_intr
 ret_from_intr:
-    jmp     recover_and_return
+    jmp     exception_recover_and_return
 
 .global divide_error
 divide_error:
@@ -170,7 +170,7 @@ nmi:
 
     callq _nmi
 
-    jmp recover_and_return
+    jmp exception_recover_and_return
 
 .global int3
 int3:
@@ -301,3 +301,79 @@ virtualization_exception:
 	leaq	_virtualization_exception(%rip),	%rax
 	xchgq	%rax,	(%rsp)
 	jmp	error_code
+
+/* IRQ */
+.global irq33
+irq33:
+    pushq   %rax
+    leaq    _irq33(%rip), %rax
+    xchgq   %rax, (%rsp)
+
+irq_save_all:
+    pushq   %rax
+    movq    %es, %rax
+    pushq   %rax
+    movq    %ds, %rax
+    pushq   %rax
+    xorq    %rax, %rax
+
+    pushq   %rbp
+    pushq   %rdi
+    pushq   %rsi
+    pushq   %rdx
+    pushq   %rcx
+    pushq   %rbx
+    pushq   %r8
+    pushq   %r9
+    pushq   %r10
+    pushq   %r11
+    pushq   %r12
+    pushq   %r13
+    pushq   %r14
+    pushq   %r15
+
+    cld
+    movq    0x88(%rsp), %rdx
+    movq    $0x10, %rdi
+    movq    %rdi, %ds
+    movq    %rdi, %es
+
+    movq    %rsp, %rdi
+    callq   *%rdx
+
+irq_recover_and_return:
+    popq	%r15
+	popq	%r14
+	popq	%r13
+	popq	%r12
+	popq	%r11
+	popq	%r10
+	popq	%r9
+	popq	%r8
+
+	popq	%rsi
+	popq	%rdi
+	popq	%rbp
+	popq	%rdx
+	popq	%rcx
+	popq	%rbx
+	popq	%rax
+
+    movq    %rax, %ds
+	popq	%rax
+    movq    %rax, %es
+    popq    %rax
+    addq    $0x08, %rsp
+    iretq
+
+.global irq32
+irq32:
+    pushq   %rax
+    leaq    _irq32(%rip), %rax
+    xchgq   %rax, (%rsp)
+
+.global irq44
+irq44:
+    pushq   %rax
+    leaq    _irq44(%rip), %rax
+    xchgq   %rax, (%rsp)

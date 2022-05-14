@@ -1,4 +1,5 @@
 #include <arch/x86_64.h>
+#include <asm/io.h>
 
 inline void set_segment_code(SegmentDescriptor64 *des, uint16_t attr) {
     des->ignore0 = 0;
@@ -55,4 +56,24 @@ inline void set_intr_gate(InterruptDescriptor128 *idt_table, uint32_t index, uin
 
 inline void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t ist, uint64_t addr) {
     set_idt(idt_table + index, addr, IDT_SELECTOR, ist, GATE_SYSTEM);
+}
+
+inline void setup_pic(uint8_t irq_start_id) {
+    outb(0x11, PIC_MASTER_ICW1);
+    outb(irq_start_id, PIC_MASTER_ICW2);
+    outb(0x04, PIC_MASTER_ICW3);
+    outb(0x01, PIC_MASTER_ICW4);
+
+    outb(0x11, PIC_SLAVE_ICW1);
+    outb(irq_start_id + 8, PIC_SLAVE_ICW2);
+    outb(0x02, PIC_SLAVE_ICW3);
+    outb(0x01, PIC_SLAVE_ICW4);
+}
+
+inline void pci_mask_master(uint8_t mask) {
+    outb(mask, PIC_MASTER_OCW1);
+}
+
+inline void pci_mask_slave(uint8_t mask) {
+    outb(mask, PIC_SLAVE_OCW1);
 }

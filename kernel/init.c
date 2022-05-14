@@ -1,6 +1,7 @@
 #include <mm/manager.h>
 #include <multiboot/multiboot2.h>
-#include <kernel/interrupt.h>
+#include <kernel/interrupt/exceptions.h>
+#include <kernel/interrupt/irq.h>
 #include <kernel/init.h>
 #include <arch/x86_64.h>
 #include <asm/io.h>
@@ -73,18 +74,13 @@ static void init_gdt(void) {
     set_segment_data(gdt64_table + 2, SEGMENT_PRESENT | SEGMENT_DATA_TYPE_W);
     set_segment_code(gdt64_table + 3, SEGMENT_PRESENT | SEGMENT_DPL_3 );
     set_segment_data(gdt64_table + 4, SEGMENT_PRESENT | SEGMENT_DATA_TYPE_W | SEGMENT_DPL_3);
-    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 0));
-    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 1));
-    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 2));
-    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 3));
-    printsf("data 0x%X\n", *(uint64_t *)(gdt64_table + 4));
     set_segment_tss((SegmentTSSDescriptor128 *)(gdt64_table + 5), (uint64_t)&tss, sizeof(tss), SEGMENT_PRESENT);
     set_tr_register(5 * 8);
 }
 
 static void init_interrupt(void) {
-    // for(uint32_t i=0; i < 256; i++) 
-    //     set_intr_gate(idt_table, i, 0, (uint64_t) default_interrupt);
+    for(uint32_t i=0; i < 256; i++) 
+        set_intr_gate(idt_table, i, 0, (uint64_t) default_interrupt);
     // debug_print_idt(idt_table + 8);
 
     set_trap_gate(idt_table, 0, 0, (uint64_t) divide_error);
@@ -109,19 +105,13 @@ static void init_interrupt(void) {
     set_trap_gate(idt_table, 19, 0, (uint64_t) simd_exception);
     set_trap_gate(idt_table, 20, 0, (uint64_t) virtualization_exception);
 
+    set_intr_gate(idt_table, 33, 0, (uint64_t) irq33);
+    set_intr_gate(idt_table, 44, 0, (uint64_t) irq44);
     debug_print_idt(idt_table + 8);
 
-    outb(0x11, 0x20);
-    outb(0x20, 0x21);
-    outb(0x04, 0x21);
-    outb(0x01, 0x21);
-
-    outb(0x11, 0xa0);
-    outb(0x28, 0xa1);
-    outb(0x02, 0xa1);
-    outb(0x01, 0xa1);
-    outb(0xff, 0x21);
-    outb(0xff, 0xa1);
+    setup_pic(0x20);
+    pci_mask_master(0xf9);
+    pci_mask_slave(0xff);
 
     enable_interrupt();
 }
