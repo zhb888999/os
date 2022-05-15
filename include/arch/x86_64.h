@@ -146,10 +146,14 @@ void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t 
 #define PIC_SLAVE_OCW2 0xa0
 #define PIC_SLAVE_OCW3 0xa0
 
-void setup_pic(uint8_t irq_start_id);
+void setup_pic(uint8_t start_id);
 void pci_mask_master(uint8_t mask);
 void pci_mask_slave(uint8_t mask);
 
+#define PIT_CTRL 0x43
+#define PIT_CNT0 0x40
+
+void setup_pit(void);
 /* Other */
 
 #define hlt() __asm__("hlt"::)

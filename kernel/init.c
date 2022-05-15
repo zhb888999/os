@@ -105,13 +105,15 @@ static void init_interrupt(void) {
     set_trap_gate(idt_table, 19, 0, (uint64_t) simd_exception);
     set_trap_gate(idt_table, 20, 0, (uint64_t) virtualization_exception);
 
+    set_intr_gate(idt_table, 32, 0, (uint64_t) irq32);
     set_intr_gate(idt_table, 33, 0, (uint64_t) irq33);
     set_intr_gate(idt_table, 44, 0, (uint64_t) irq44);
     debug_print_idt(idt_table + 8);
 
     setup_pic(0x20);
-    pci_mask_master(0xf9);
-    pci_mask_slave(0xff);
+    setup_pit();
 
+    pci_mask_master(0xfc);
+    pci_mask_slave(0xff);
     enable_interrupt();
 }

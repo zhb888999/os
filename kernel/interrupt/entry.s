@@ -371,9 +371,11 @@ irq32:
     pushq   %rax
     leaq    _irq32(%rip), %rax
     xchgq   %rax, (%rsp)
+	jmp irq_save_all
 
 .global irq44
 irq44:
     pushq   %rax
     leaq    _irq44(%rip), %rax
     xchgq   %rax, (%rsp)
+	jmp irq_save_all
