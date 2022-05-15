@@ -1,6 +1,7 @@
 #include <dev/vga.h>
 #include <dev/serial.h>
 #include <arch/x86_64.h>
+#include <asm/io.h>
 
 void _default_interrupt(void) {
     printsf("unkonw interrupt!\n");
@@ -70,7 +71,7 @@ void _double_fault(uint64_t regs, uint64_t error_code)
 {
     printf("double_fault -> %X\n", error_code);
     printsf("double_fault -> %X\n", error_code);
-    // for(;;) hlt();
+    for(;;) hlt();
 }
 
 void _coprocessor_segment_overrun(uint64_t regs,uint64_t error_code)

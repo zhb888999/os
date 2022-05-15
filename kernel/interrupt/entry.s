@@ -28,7 +28,6 @@ default_interrupt:
     movq    %rax, %es
 
     callq   _default_interrupt
-    addq    $0x08, %rsp
 
     popq    %rax
     movq    %rax, %ds
