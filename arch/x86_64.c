@@ -35,6 +35,25 @@ inline void set_segment_cgd(SegmentCGDDescriptor128 *des, uint64_t offset, uint1
     des->zero = 0;
 }
 
+inline void set_tss64(TSS64 *tss, uint64_t rsp0, uint64_t rsp1, uint64_t rsp2, 
+    uint64_t ist1, uint64_t ist2, uint64_t ist3, uint64_t ist4, uint64_t ist5, uint64_t ist6, uint64_t ist7) {
+        tss->rsp0 = rsp0;
+        tss->rsp1 = rsp1;
+        tss->rsp2 = rsp2;
+        tss->ist1 = ist1;
+        tss->ist2 = ist2;
+        tss->ist3 = ist3;
+        tss->ist4 = ist4;
+        tss->ist5 = ist5;
+        tss->ist6 = ist6;
+        tss->ist7 = ist7;
+        tss->iomapbaseaddr = 0;
+        tss->reserved0 = 0;
+        tss->reserved1 = 0;
+        tss->reserved2 = 0;
+        tss->reserved3 = 0;
+    }
+
 inline void set_idt(InterruptDescriptor128 *des, uint64_t offset, uint16_t selector, uint8_t ist, uint8_t type_attributes) {
     des->offset_1 = offset & 0xffff;
     des->ist = ist;

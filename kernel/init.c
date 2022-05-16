@@ -27,6 +27,7 @@ static void init_pages(MemorySegmentPage *segments, int segment_count);
 static void init_gdt(void);
 static void init_interrupt(void);
 
+#ifdef DEBUG
 static void debug_print_idt(InterruptDescriptor128 *idt) {
     printsf("idt.offset_1: 0x%x\n", idt->offset_1);
     printsf("idt.ist: 0x%x\n", idt->ist);
@@ -36,7 +37,7 @@ static void debug_print_idt(InterruptDescriptor128 *idt) {
     printsf("idt.selector: x0%x\n", idt->selector);
     printsf("idt.zero: 0x%x\n", idt->zero);
 }
-
+#endif
 
 void initialize() {
     MemorySegment segments[MAX_FREE_SEGMENT_COUNT];
@@ -81,7 +82,6 @@ static void init_gdt(void) {
 static void init_interrupt(void) {
     for(uint32_t i=0; i < 256; i++) 
         set_intr_gate(idt_table, i, 0, (uint64_t) default_interrupt);
-    // debug_print_idt(idt_table + 8);
 
     set_trap_gate(idt_table, 0, 0, (uint64_t) divide_error);
     set_trap_gate(idt_table, 1, 0, (uint64_t) debug);
@@ -108,7 +108,6 @@ static void init_interrupt(void) {
     set_intr_gate(idt_table, 32, 0, (uint64_t) irq32);
     set_intr_gate(idt_table, 33, 0, (uint64_t) irq33);
     set_intr_gate(idt_table, 44, 0, (uint64_t) irq44);
-    debug_print_idt(idt_table + 8);
 
     setup_pic(0x20);
     setup_pit();

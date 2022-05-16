@@ -81,6 +81,9 @@ typedef struct {
 	uint16_t iomapbaseaddr;
 }__attribute__((packed)) TSS64;
 
+void set_tss64(TSS64*, uint64_t rsp0, uint64_t rsp1, uint64_t rsp2, 
+    uint64_t ist1, uint64_t ist2, uint64_t ist3, uint64_t ist4, uint64_t ist5, uint64_t ist6, uint64_t ist7);
+
 #define set_tr_register(n) __asm__ ("ltr %%ax"::"a"(n))
 
 /* Interrupt setting */
