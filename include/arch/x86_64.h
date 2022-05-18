@@ -160,4 +160,6 @@ void setup_pit(void);
 /* Other */
 
 #define hlt() __asm__("hlt"::)
+
+void cpuid(uint32_t mop, uint32_t sop, uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d);
 #endif // ARCH_X86_64_H

@@ -36,12 +36,12 @@ $(ISO): kernel.bin grub.cfg
 	@grub-mkrescue -o iso isofile 2> /dev/null
 	@rm -rf isofile
 
-run2: $(ISO)
-	@qemu-system-x86_64 -cdrom iso -m 8192 -device isa-debug-exit,iobase=0xf4,iosize=0x04 -M hpet=on 
+QEMU_FLAGES := -enable-kvm -cpu host -cdrom iso -m 8192 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -M hpet=on
+
 run: $(ISO)
-	@qemu-system-x86_64 -cdrom iso -m 8192 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -M hpet=on 
+	@qemu-system-x86_64 $(QEMU_FLAGES)
 test: $(ISO)
-	@qemu-system-x86_64 -cdrom iso -m 4096 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -display none
+	@qemu-system-x86_64 $(QEMU_FLAGES) -display none
 
 	
 clean:
