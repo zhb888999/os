@@ -8,7 +8,7 @@
 
 #include <dev/serial.h>
 #include <dev/vga.h>
-
+#include <apic/apic.h>
 
 extern uint32_t multiboot_info;
 
@@ -16,7 +16,8 @@ extern SegmentDescriptor64 gdt64_table[512];
 extern uint64_t gdt_ptr;
 extern InterruptDescriptor128 idt_table[256];
 extern uint64_t idt_ptr;
-
+extern uint64_t p4_table[512];
+extern uint64_t p3_table[512];
 
 TSS64 tss;
 MMFreePageManager mm_page_manager = {0};
@@ -46,6 +47,15 @@ void initialize() {
     kernel_base_page_head = mm_alloc_pages(&mm_page_manager, ALLOC_PAGE_SIZE);
     init_gdt();
     init_interrupt();
+    uint32_t eax, ebx, ecx, edx;
+    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+    if((1<<9) & edx) printf("support APIC&xAPIC\n");
+    if((1<<21) & ecx) printf("support x2APIC\n");
+    uint64_t *lid;
+    lid = (uint64_t *)0xFEE00030;
+    printsf(">apic version:0x%X%X\n", (*lid) & 0xff, *(lid+1));
+    init_local_apic();
+    printsf(">apic version:0x%X%X\n", *lid, *(lid+1));
 }
 
 static void init_pages(MemorySegmentPage *segments, int segment_count) {

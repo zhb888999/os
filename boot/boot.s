@@ -1,5 +1,5 @@
 
-.global  _start, multiboot_info, gdt64_table, gdt_ptr, idt_ptr, idt_table, stack_bottom, stack_top
+.global  _start, multiboot_info, p4_table, p3_table, gdt64_table, gdt_ptr, idt_ptr, idt_table, stack_bottom, stack_top
 
 .section .text
 .code32
@@ -31,9 +31,18 @@ setup_page_tables:
     or $0x3, %eax
     movl %eax, p4_table
 
-    movl $0x0, %eax
-    or $0x83, %eax
-    movl %eax, p3_table
+    movl $0x83, p3_table            
+    movl $0x40000083, p3_table + 8  
+    movl $0x80000083, p3_table + 16 
+    movl $0xc0000083, p3_table + 24 
+    movl $0x83, p3_table + 32
+    movl $0x1, p3_table + 36
+    movl $0x40000083, p3_table + 40 
+    movl $0x1, p3_table + 44
+    movl $0x80000083, p3_table + 48 
+    movl $0x1, p3_table + 52
+    movl $0xc0000083, p3_table + 56
+    movl $0x1, p3_table + 60
 
     ret
 

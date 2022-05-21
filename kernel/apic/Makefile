@@ -1,9 +1,5 @@
 BUILD_DIR ?= ../build
-OBJS := format.o init.o
-
-all: $(OBJS)
-	@$(MAKE) -C interrupt
-	@$(MAKE) -C apic
+OBJS := local_apic.o io_apic.o
 
 $(OBJS): %.o: %.c
 	@mkdir -p $(BUILD_DIR)

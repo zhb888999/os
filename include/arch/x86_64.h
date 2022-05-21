@@ -112,10 +112,10 @@ void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t 
 
 /* Page setting */
 #define page_id(addr) ((addr) >> 12)
-#define virtaddr_l4(addr) ((addr) >> 39 >> 0x1ff)
-#define virtaddr_l3(addr) ((addr) >> 30 >> 0x1ff)
-#define virtaddr_l2(addr) ((addr) >> 21 >> 0x1ff)
-#define virtaddr_l1(addr) ((addr) >> 12 & 0x1ff )
+#define virtaddr_l4(addr) ((addr) >> 39 & 0x1ff)
+#define virtaddr_l3(addr) ((addr) >> 30 & 0x1ff)
+#define virtaddr_l2(addr) ((addr) >> 21 & 0x1ff)
+#define virtaddr_l1(addr) ((addr) >> 12 & 0x1ff)
 #define virtaddr_offset(addr) ((addr) & 0xfff)
 
 #define PAGE_PRESENT 0x1
@@ -130,6 +130,18 @@ void set_system_gate(InterruptDescriptor128 *idt_table, uint32_t index, uint8_t 
 #define PAGE_NO_EXECUTE 0x8000000000000000
 
 #define page_entry(phyaddr, flags) ((phyaddr) & 0x1ffffffffff000 | (flags))
+#define invlpg(addr) __asm__ __volatile__ ("invlpg (%0)"::"r"(addr):"memory")
+#define flush_tlb() \
+do { \
+    uint64_t tp; \
+    __asm__ __volatile__ ( \
+        "movq   %%cr3, %0 \n\t" \
+        "movq   %0, %%cr3 \n\t" \
+        :"=r"(tp) \
+        : \
+        :"memory" \
+    ); \
+}while(0)
 
 /* PIC */
 

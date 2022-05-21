@@ -3,7 +3,7 @@
 #include <arch/x86_64.h>
 #include <kernel/init.h>
 
-// #include <dev/vga.h>
+#include <dev/serial.h>
 
 int parse_multiboot2(uint32_t addr, MemorySegmentPage *free, MemorySegment *kernel) {
     int segment_count = 0;
@@ -15,8 +15,10 @@ int parse_multiboot2(uint32_t addr, MemorySegmentPage *free, MemorySegment *kern
                 multiboot_memory_map_t *mmap = ((struct multiboot_tag_mmap *) tag)->entries;
                 for (; (multiboot_uint8_t *) mmap < (multiboot_uint8_t *) tag + tag->size;
                      mmap = (multiboot_memory_map_t *) ((unsigned long) mmap + ((struct multiboot_tag_mmap *) tag)->entry_size)) {
-                    // printf("mmap: %d\n", mmap->type);
-                    if(mmap->type != 1) continue;
+                    if(mmap->type != 1) {
+                        printsf(">> %X-%X\n", mmap->addr, mmap->addr+mmap->len);
+                        continue;
+                    }
                     (free + segment_count)->start = mmap->addr % 4096 == 0 ? page_id(mmap->addr) : page_id(mmap->addr) + 1;
                     (free + segment_count)->end = page_id(mmap->addr + mmap->len);
                     segment_count ++;
