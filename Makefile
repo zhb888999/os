@@ -36,7 +36,7 @@ $(ISO): kernel.bin grub.cfg
 	@grub-mkrescue -o iso isofile 2> /dev/null
 	@rm -rf isofile
 
-QEMU_FLAGES := -enable-kvm -cpu host -cdrom iso -m 8192 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine hpet=on 
+QEMU_FLAGES := -enable-kvm -cdrom iso -m 8192 -serial stdio -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine hpet=on -smp cpus=4
 
 run: $(ISO)
 	@qemu-system-x86_64 $(QEMU_FLAGES)

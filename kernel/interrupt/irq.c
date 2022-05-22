@@ -11,7 +11,14 @@ void _irq32(void) {
 void _irq33(void) {
     uint8_t keycode = inb(0x60);
     printf("%c", keycode);
-    outb(0x20, 0x20);
+    // outb(0x20, 0x20);
+    __asm__ __volatile__(
+        "movq $0x00, %%rdx      \n\t"
+        "movq $0x00, %%rax      \n\t"
+        "movq $0x80b, %%rcx     \n\t"
+        "wrmsr                  \n\t"
+        :::"memory"
+    );
 }
 
 void _irq44(void) {
