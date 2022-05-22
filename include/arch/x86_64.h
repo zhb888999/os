@@ -2,9 +2,6 @@
 #define ARCH_X86_64_H
 #include <int.h>
 
-
-
-
 #define SEGMENT_DPL_0 0x00
 #define SEGMENT_DPL_1 0x20
 #define SEGMENT_DPL_2 0x40
@@ -169,9 +166,21 @@ void pci_mask_slave(uint8_t mask);
 #define PIT_CNT0 0x40
 
 void setup_pit(void);
-/* Other */
 
+/* apic */
+
+#define LOCAL_APIC_REG_BASE 0xFEE00000
+#define IO_APIC_REG_BASE 0xFEC00000
+
+/* Other */
 #define hlt() __asm__("hlt"::)
+#define sti() __asm__ ("sti"::)
+#define cti() __asm__ ("cti"::)
+
+#define lfence() __asm__ __volatile__ ("lfence":::"memory")
+#define sfence() __asm__ __volatile__ ("sfence":::"memory")
+#define mfence() __asm__ __volatile__ ("mfence":::"memory")
 
 void cpuid(uint32_t mop, uint32_t sop, uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d);
+
 #endif // ARCH_X86_64_H

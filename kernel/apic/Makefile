@@ -1,5 +1,7 @@
 BUILD_DIR ?= ../build
-OBJS := local_apic.o io_apic.o
+OBJS := ioapic.o localapic.o 
+
+all: $(OBJS)
 
 $(OBJS): %.o: %.c
 	@mkdir -p $(BUILD_DIR)

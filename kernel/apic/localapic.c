@@ -2,8 +2,9 @@
 #include <dev/vga.h>
 #include <dev/serial.h>
 
-void init_local_apic(void) {
-    uint32_t hmsr, lmsr;
+
+void init_localapic(void) {
+    uint32_t lmsr, hmsr;
 
     /* enable xAPIC & x2APIC */
     __asm__ __volatile__(
@@ -31,6 +32,9 @@ void init_local_apic(void) {
         :
         :"memory"
     );
+    printf("eax:%x edx:%x\n", lmsr, hmsr);
+    if(lmsr & 0x100) printf("SVR[8] enabled\n");
+    if(lmsr & 0x1000) printf("SVR[12] enabled\n");
 
     /* get local APIC ID */
     __asm__ __volatile__(
@@ -40,7 +44,7 @@ void init_local_apic(void) {
         :
         :"memory"
     );
-    printsf("apic id:%x\n", lmsr);
+    printf("APIC id:%x\n", lmsr);
 
     /* get local APIC version */
     __asm__ __volatile__(
@@ -50,14 +54,13 @@ void init_local_apic(void) {
         :
         :"memory"
     );
-	printsf("local APIC Version:0x%x, Max LVT Entry:0x%x,SVR(Suppress EOI Broadcast):0x%x\n",
+	printf("local APIC Version:0x%x, Max LVT Entry:0x%x,SVR(Suppress EOI Broadcast):0x%x\n",
            lmsr & 0xff,(lmsr >> 16 & 0xff) + 1,lmsr >> 24 & 0x1);
-    
-    return;
+
     /* mask all LVT */
     __asm__ __volatile__(
-        "movq   $0x82f, %%rcx   \n\t"   //CMCI
-        "wrmsr                  \n\t"
+        // "movq   $0x82f, %%rcx   \n\t"   //CMCI
+        // "wrmsr                  \n\t"
         "movq   $0x832, %%rcx   \n\t"   //Timer
         "wrmsr                  \n\t"
         "movq   $0x833, %%rcx   \n\t"   //Thermal Monitor
@@ -83,7 +86,7 @@ void init_local_apic(void) {
         :
         :"memory"
     );
-    printf("set LVT TPR:0x%x", lmsr);
+    printf("set LVT TPR:0x%x\n", lmsr);
     /* get PPR */
     __asm__ __volatile__(
         "movq   $0x80a, %%rcx   \n\t"
@@ -92,6 +95,6 @@ void init_local_apic(void) {
         :
         :"memory"
     );
-    printf("set LVT PPR:0x%x", lmsr);
+    printf("set LVT PPR:0x%x\n", lmsr);
 
 }

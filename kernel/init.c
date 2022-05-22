@@ -27,6 +27,7 @@ uint64_t kernel_base_page_head;
 static void init_pages(MemorySegmentPage *segments, int segment_count);
 static void init_gdt(void);
 static void init_interrupt(void);
+static void init_apic(void);
 
 #ifdef DEBUG
 static void debug_print_idt(InterruptDescriptor128 *idt) {
@@ -51,11 +52,7 @@ void initialize() {
     cpuid(1, 0, &eax, &ebx, &ecx, &edx);
     if((1<<9) & edx) printf("support APIC&xAPIC\n");
     if((1<<21) & ecx) printf("support x2APIC\n");
-    uint64_t *lid;
-    lid = (uint64_t *)0xFEE00030;
-    printsf(">apic version:0x%X%X\n", (*lid) & 0xff, *(lid+1));
-    init_local_apic();
-    printsf(">apic version:0x%X%X\n", *lid, *(lid+1));
+    init_apic();
 }
 
 static void init_pages(MemorySegmentPage *segments, int segment_count) {
@@ -118,11 +115,27 @@ static void init_interrupt(void) {
     set_intr_gate(idt_table, 32, 0, (uint64_t) irq32);
     set_intr_gate(idt_table, 33, 0, (uint64_t) irq33);
     set_intr_gate(idt_table, 44, 0, (uint64_t) irq44);
+}
 
+static void init_8259a(void) {
     setup_pic(0x20);
     setup_pit();
-
     pci_mask_master(0xfc);
     pci_mask_slave(0xff);
-    enable_interrupt();
+}
+
+static void init_apic(void) {
+    outb(0x70, 0x22);
+    outb(0x01, 0x23);
+    init_localapic();
+    init_ioapic();
+    outl(0x8000f8f0, 0xcf8);
+    uint32_t x = inl(0xcfc);
+    x &= 0xffffc000;
+    uint32_t *p = (uint32_t *)(x + 0x31feUL);
+    x = (*p & 0xffffff00) | 0x100;
+    mfence();
+    *p = x;
+    mfence();
+    sti();
 }
