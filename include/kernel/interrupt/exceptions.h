@@ -1,5 +1,5 @@
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
+#ifndef INTERRUPT_EXCEPTIONS_H
+#define INTERRUPT_EXCEPTIONS_H
 
 extern void default_interrupt(void);
 extern void divide_error(void);

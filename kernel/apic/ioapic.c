@@ -1,5 +1,6 @@
 #include <apic/apic.h>
 #include <arch/x86_64.h>
+#include <asm/io.h>
 #include <int.h>
 
 static uint8_t *IOREGSEL = (uint8_t *)IO_APIC_REG_BASE;
@@ -53,4 +54,20 @@ void init_ioapic(void) {
     for(uint8_t i = 0x10; i < 0x40; i += 2)
         write_ioapic_rte64(i, 0x10020 + ((i - 0x10) >> 1));
     write_ioapic_rte64(0x12, 0x21);
+}
+
+inline void enable_imcr(void) {
+    outb(0x70, 0x22);
+    outb(0x01, 0x23);
+}
+
+void enable_ioapic(void) {
+    outl(0x8000f8f0, 0xcf8);
+    uint32_t x = inl(0xcfc);
+    x &= 0xffffc000;
+    uint32_t *p = (uint32_t *)(x + 0x31feUL);
+    x = (*p & 0xffffff00) | 0x100;
+    mfence();
+    *p = x;
+    mfence();
 }

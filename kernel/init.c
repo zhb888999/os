@@ -112,9 +112,9 @@ static void init_interrupt(void) {
     set_trap_gate(idt_table, 19, 0, (uint64_t) simd_exception);
     set_trap_gate(idt_table, 20, 0, (uint64_t) virtualization_exception);
 
-    set_intr_gate(idt_table, 32, 0, (uint64_t) irq32);
-    set_intr_gate(idt_table, 33, 0, (uint64_t) irq33);
-    set_intr_gate(idt_table, 44, 0, (uint64_t) irq44);
+    set_intr_gate(idt_table, 32, 0, (uint64_t) irq00);
+    set_intr_gate(idt_table, 33, 0, (uint64_t) irq01);
+    set_intr_gate(idt_table, 44, 0, (uint64_t) irq12);
 }
 
 static void init_8259a(void) {
@@ -125,17 +125,9 @@ static void init_8259a(void) {
 }
 
 static void init_apic(void) {
-    outb(0x70, 0x22);
-    outb(0x01, 0x23);
+    enable_imcr();
     init_localapic();
     init_ioapic();
-    outl(0x8000f8f0, 0xcf8);
-    uint32_t x = inl(0xcfc);
-    x &= 0xffffc000;
-    uint32_t *p = (uint32_t *)(x + 0x31feUL);
-    x = (*p & 0xffffff00) | 0x100;
-    mfence();
-    *p = x;
-    mfence();
+    enable_ioapic();
     sti();
 }

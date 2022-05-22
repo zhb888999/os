@@ -302,10 +302,11 @@ virtualization_exception:
 	jmp	error_code
 
 /* IRQ */
-.global irq33
-irq33:
+.global irq00
+irq00:
+    pushq   $0x00
     pushq   %rax
-    leaq    _irq33(%rip), %rax
+    leaq    __irq(%rip), %rax
     xchgq   %rax, (%rsp)
 
 irq_save_all:
@@ -332,6 +333,7 @@ irq_save_all:
     pushq   %r15
 
     cld
+    movq    0x90(%rsp), %rsi
     movq    0x88(%rsp), %rdx
     movq    $0x10, %rdi
     movq    %rdi, %ds
@@ -362,19 +364,189 @@ irq_recover_and_return:
 	popq	%rax
     movq    %rax, %es
     popq    %rax
-    addq    $0x08, %rsp
+    addq    $0x10, %rsp
     iretq
 
-.global irq32
-irq32:
+.global irq01
+irq01:
+    pushq   $0x01
     pushq   %rax
-    leaq    _irq32(%rip), %rax
+    leaq    __irq(%rip), %rax
     xchgq   %rax, (%rsp)
 	jmp irq_save_all
 
-.global irq44
-irq44:
+.global irq02
+irq02:
+    pushq   $0x02
     pushq   %rax
-    leaq    _irq44(%rip), %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq03
+irq03:
+    pushq   $0x03
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq04
+irq04:
+    pushq   $0x04
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq05
+irq05:
+    pushq   $0x05
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq06
+irq06:
+    pushq   $0x06
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq07
+irq07:
+    pushq   $0x07
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq08
+irq08:
+    pushq   $0x08
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq09
+irq09:
+    pushq   $0x09
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq0a
+irq0a:
+    pushq   $0x0a
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq0b
+irq0b:
+    pushq   $0x0b
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq0c
+irq0c:
+    pushq   $0x0c
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq0d
+irq0d:
+    pushq   $0x0d
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq0e
+irq0e:
+    pushq   $0x0e
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq0f
+irq0f:
+    pushq   $0x0f
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq10
+irq10:
+    pushq   $0x10
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq11
+irq11:
+    pushq   $0x11
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq12
+irq12:
+    pushq   $0x12
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq13
+irq13:
+    pushq   $0x13
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq14
+irq14:
+    pushq   $0x14
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq15
+irq15:
+    pushq   $0x15
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq16
+irq16:
+    pushq   $0x16
+    pushq   %rax
+    leaq    __irq(%rip), %rax
+    xchgq   %rax, (%rsp)
+	jmp irq_save_all
+
+.global irq17
+irq17:
+    pushq   $0x17
+    pushq   %rax
+    leaq    __irq(%rip), %rax
     xchgq   %rax, (%rsp)
 	jmp irq_save_all
