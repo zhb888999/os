@@ -1,6 +1,7 @@
 #include <apic/apic.h>
 #include <arch/x86_64.h>
 #include <asm/io.h>
+#include <dev/vga.h>
 #include <int.h>
 
 static uint8_t *IOREGSEL = (uint8_t *)IO_APIC_REG_BASE;
@@ -70,4 +71,35 @@ void enable_ioapic(void) {
     mfence();
     *p = x;
     mfence();
+}
+
+void irq_enable(uint64_t irq) {
+    uint8_t rte = irq2rte(irq);
+    uint64_t value = read_ioapic_rte64(rte) & (~0x10000UL);
+    write_ioapic_rte64(rte, value);
+}
+
+void irq_disable(uint64_t irq) {
+    uint8_t rte = irq2rte(irq);
+    uint64_t value = read_ioapic_rte64(rte) | 0x10000UL;
+    write_ioapic_rte64(rte, value);
+}
+
+uint64_t irq_install(uint64_t irq, void *arg) {
+    struct IRQEntry *entry = (struct IRQEntry *)arg;
+    write_ioapic_rte64(irq2rte(irq), *(uint64_t *)entry);
+    return 1;
+}
+
+void irq_uninstall(uint64_t irq) {
+    write_ioapic_rte64(irq2rte(irq), 0x10000UL);
+}
+
+void irq_level_ack(uint64_t irq) {
+    local_eoi();
+	*EOI = irq2vector(irq);
+}
+
+void irq_edge_ack(uint64_t irq) {
+    local_eoi();
 }
