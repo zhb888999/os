@@ -35,4 +35,5 @@ typedef struct{
     uint8_t buf[KB_BUF_SIZE];
 } KeyBoardInput;
 
+void analysis_keycode(void);
 #endif 

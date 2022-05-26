@@ -9,6 +9,7 @@
 #include <dev/serial.h>
 #include <dev/vga.h>
 #include <dev/keyboard.h>
+#include <dev/mouse.h>
 #include <apic/apic.h>
 
 extern uint32_t multiboot_info;
@@ -131,5 +132,6 @@ static void init_apic(void) {
     init_ioapic();
     enable_ioapic();
     keyboard_init();
+    // mouse_init();
     sti();
 }
