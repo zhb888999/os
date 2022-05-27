@@ -2,3 +2,4 @@ build
 iso
 compile_flags.txt
 *.py
+block.qcow2

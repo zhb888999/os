@@ -44,4 +44,10 @@ __asm__ volatile ("inb %%dx,%%al\n" \
 _v; \
 })
 
+#define insw(buffer, nr, port)	\
+__asm__ __volatile__("cld;rep;insw;mfence;"::"d"(port),"D"(buffer),"c"(nr):"memory")
+
+#define outsw(buffer, nr, port)	\
+__asm__ __volatile__("cld;rep;outsw;mfence;"::"d"(port),"S"(buffer),"c"(nr):"memory")
+
 #endif // IO_H

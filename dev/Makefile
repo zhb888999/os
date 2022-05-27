@@ -3,3 +3,4 @@ all:
 	@$(MAKE) -C vga
 	@$(MAKE) -C keyboard
 	@$(MAKE) -C mouse
+	@$(MAKE) -C disk

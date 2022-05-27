@@ -8,7 +8,7 @@
 static KeyBoardInput kb_input = {0};
 static int32_t shift_l,shift_r,ctrl_l,ctrl_r,alt_l,alt_r;
 
-static void keyboard_handler(uint64_t nr, uint64_t parameter, IRQRegs *regs) {
+void keyboard_handler(uint64_t nr, uint64_t parameter, IRQRegs *regs) {
     uint8_t x = inb(PORT_KB_DATA);
     // printf("[%x]",x);
     if(kb_input.phead == kb_input.buf + KB_BUF_SIZE)

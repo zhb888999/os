@@ -6,13 +6,18 @@
 IRQDescriptor irq_descs[NR_IRQS] = {0};
 
 void __irq(IRQRegs *regs, uint64_t nr) {
-    // printf("[ %X ] ->\n", nr);
+    printf("@ irq[%D] in\n", nr);
     IRQDescriptor *irq = &irq_descs[nr];
-    if(irq->handler != 0) 
+    if(irq->handler != 0) {
+        printf("@ irq[%D] handler\n", nr);
         irq->handler(nr, irq->parameter, regs);
+    }
     
-    if(irq->controller != 0 && irq->controller->ack != 0)
+    if(irq->controller != 0 && irq->controller->ack != 0) {
+        printf("@ irq[%D] ack\n", nr);
         irq->controller->ack(nr);
+    }
+    printf("@ irq[%D] out\n", nr);
 }
 
 int32_t register_irq(
@@ -32,7 +37,9 @@ int32_t register_irq(
 
     p->controller->install(irq, arg);
     p->controller->enable(irq);
-    
+
+    printf("@ register irq[%D] controller:0x%X handler:0x%X\n", 
+            irq, (uint64_t)controller, (uint64_t)handler);
     return 1;
 }
 

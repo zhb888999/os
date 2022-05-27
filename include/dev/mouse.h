@@ -3,7 +3,7 @@
 
 #include <int.h>
 
-#define MOUSE_IRQ_NR 12
+#define MOUSE_IRQ_NR 13
 
 #define MOUSE_BUF_SIZE 100
 #define KBCMD_SENDTO_MOUSE	0xd4
@@ -35,8 +35,8 @@ typedef struct {
     int8_t byte2;
 } MousePacket;
 
-#define  wait_mouse_write()	while(inb(PORT_MOUSE_STATUS) & MOUSE_STATUS_IBF)
-#define  wait_mouse_read()	while(inb(PORT_MOUSE_STATUS) & MOUSE_STATUS_OBF)
+#define  wait_mouse_write()	while(inb(PORT_MOUSE_STATUS) & MOUSE_STATUS_IBF){}
+#define  wait_mouse_read()	while(inb(PORT_MOUSE_STATUS) & MOUSE_STATUS_OBF){}
 
 void mouse_init(void);
 

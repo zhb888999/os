@@ -22,8 +22,8 @@
 
 #define KB_INIT_MODE	0x47
 
-#define  wait_keyboard_write()	while(inb(PORT_KB_STATUS) & KBSTATUS_IBF)
-#define  wait_keyboard_read()	while(inb(PORT_KB_STATUS) & KBSTATUS_OBF)
+#define  wait_keyboard_write()	while(inb(PORT_KB_STATUS) & KBSTATUS_IBF){}
+#define  wait_keyboard_read()	while(inb(PORT_KB_STATUS) & KBSTATUS_OBF){}
 
 void keyboard_init(void);
 void keyboard_exit(void);

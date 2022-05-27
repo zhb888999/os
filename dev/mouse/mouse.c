@@ -8,8 +8,8 @@
 
 static  MouseInput m_input = {0};
 
-static void mouse_handler(uint64_t nr, uint64_t parameter, IRQRegs *regs) {
-    uint8_t x = inb(PORT_MOUSE_DATA);
+void mouse_handler(uint64_t nr, uint64_t parameter, IRQRegs *regs) {
+    int8_t x = inb(PORT_MOUSE_DATA);
     printf("[%x]",x);
     if(m_input.phead == m_input.buf + MOUSE_BUF_SIZE)
         m_input.phead = m_input.buf;
@@ -56,12 +56,14 @@ void mouse_init(void) {
 	outb(KBCMD_SENDTO_MOUSE, PORT_MOUSE_CMD);
 	wait_mouse_write();
 	outb(MOUSE_ENABLE, PORT_MOUSE_DATA);
+	wait_mouse_write();
+
     for(int i = 0; i < 1000*1000; i++) nop();
 	wait_mouse_write();
 	outb(MOUSE_CMD_WRITE_CMD, PORT_MOUSE_CMD);
 	wait_mouse_write();
 	outb(MOUSE_INIT_MODE, PORT_MOUSE_DATA);
+    register_irq(MOUSE_IRQ_NR, &entry, &mouse_handler, 
+        (uint64_t)&m_input, &mouse_contorller, "ps/2 mouse");
 
-    register_irq(MOUSE_IRQ_NR, &entry,  &mouse_handler, 
-        (uint64_t)&m_input, &mouse_contorller, "ps/2 keyboard");
 }

@@ -10,6 +10,7 @@
 #include <dev/vga.h>
 #include <dev/keyboard.h>
 #include <dev/mouse.h>
+#include <dev/disk.h>
 #include <apic/apic.h>
 
 extern uint32_t multiboot_info;
@@ -117,6 +118,8 @@ static void init_interrupt(void) {
     set_intr_gate(idt_table, 32, 0, (uint64_t) irq00);
     set_intr_gate(idt_table, 33, 0, (uint64_t) irq01);
     set_intr_gate(idt_table, 44, 0, (uint64_t) irq12);
+    set_intr_gate(idt_table, 46, 0, (uint64_t) irq14);
+    set_intr_gate(idt_table, 47, 0, (uint64_t) irq15);
 }
 
 static void init_8259a(void) {
@@ -133,5 +136,7 @@ static void init_apic(void) {
     enable_ioapic();
     keyboard_init();
     // mouse_init();
+    disk_init();
     sti();
+    // *(uint64_t *)0xffffffffffff = 10;
 }
