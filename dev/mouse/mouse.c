@@ -1,4 +1,4 @@
-#include <kernel/interrupt/interrupt.h>
+#include <kernel/interrupt.h>
 #include <dev/mouse.h>
 #include <apic/apic.h>
 #include <arch/x86_64.h>

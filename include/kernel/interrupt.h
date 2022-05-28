@@ -1,5 +1,5 @@
-#ifndef INTERRUPT_INTERRUPT_H
-#define INTERRUPT_INTERRUPT_H
+#ifndef INTERRUPT_H
+#define INTERRUPT_H
 #include <int.h>
 
 typedef struct {
@@ -83,5 +83,7 @@ int32_t register_irq(
     char *name
 );
 int32_t unregister_irq(uint64_t irq);
+
+void init_idt(void);
 
 #endif

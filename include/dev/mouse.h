@@ -3,7 +3,7 @@
 
 #include <int.h>
 
-#define MOUSE_IRQ_NR 13
+#define MOUSE_IRQ_NR 12
 
 #define MOUSE_BUF_SIZE 100
 #define KBCMD_SENDTO_MOUSE	0xd4

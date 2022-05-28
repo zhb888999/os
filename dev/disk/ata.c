@@ -1,4 +1,4 @@
-#include <kernel/interrupt/interrupt.h>
+#include <kernel/interrupt.h>
 #include <apic/apic.h>
 #include <arch/x86_64.h>
 #include <dev/vga.h>
@@ -7,11 +7,11 @@
 
 
 void disk_handler(uint64_t nr, uint64_t parameter, IRQRegs *regs) {
-	printf(">>>>>>>>>>");
 	char data[300] = {0};
-	insw(&data, 256, PORT_DISK1_DATA);
+	insb(&data, 256, PORT_DISK0_DATA);
 	data[256] = '\0';
-	printf("%s", data);
+	for(int i=0; i<300; i++) printf("[%c]", data[i]);
+	// printf("[[%s]]\n", data);
 };
 
 void disk_exit(void) {
@@ -45,11 +45,11 @@ void disk_init(void) {
     register_irq(DISK_IRQ_NR, &entry,  &disk_handler, 
         0, &disk_contorller, "disk0");
 
-	outb(0, PORT_DISK1_ALT_STA_CTL);
-	outb(0, PORT_DISK1_SECTOR_CNT);
-	outb(0, PORT_DISK1_SECTOR_LOW);
-	outb(0, PORT_DISK1_SECTOR_MID);
-	outb(0, PORT_DISK1_SECTOR_HIGH);
-	outb(0xe0, PORT_DISK1_DEVICE);
-	outb(0xec, PORT_DISK1_STATUS_CMD);
+	outb(0, PORT_DISK0_ALT_STA_CTL);
+	outb(0, PORT_DISK0_SECTOR_CNT);
+	outb(0, PORT_DISK0_SECTOR_LOW);
+	outb(0, PORT_DISK0_SECTOR_MID);
+	outb(0, PORT_DISK0_SECTOR_HIGH);
+	outb(0xe0, PORT_DISK0_DEVICE);
+	outb(0xec, PORT_DISK0_STATUS_CMD);
 }

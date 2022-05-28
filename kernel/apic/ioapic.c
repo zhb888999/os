@@ -54,7 +54,6 @@ void init_ioapic(void) {
     write_ioapic_rte32(0x00, 0x0f000000);
     for(uint8_t i = 0x10; i < 0x40; i += 2)
         write_ioapic_rte64(i, 0x10020 + ((i - 0x10) >> 1));
-    write_ioapic_rte64(0x12, 0x21);
 }
 
 inline void enable_imcr(void) {

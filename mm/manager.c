@@ -1,19 +1,20 @@
 #include <int.h>
-#include <mm/manager.h>
+#include <mm/pmanager.h>
 #include <dev/vga.h>
 
+static PageManager pmanager = {0};
 
-uint16_t mm_alloc_pages(MMFreePageManager *man, uint64_t length) {
+uint16_t palloc(uint64_t length) {
     uint64_t head;
-    for(uint64_t i = 0; i < man->frees; i++) {
-        if(man->free[i].length >= length) {
-            head = man->free[i].head;
-            man->free[i].head += length;
-            man->free[i].length -= length;
-            if(man->free[i].length == 0) {
-                man->frees--;
-                for(; i < man->frees; i++) {
-                    man->free[i] = man->free[i + 1];
+    for(uint64_t i = 0; i < pmanager.frees; i++) {
+        if(pmanager.free[i].length >= length) {
+            head = pmanager.free[i].head;
+            pmanager.free[i].head += length;
+            pmanager.free[i].length -= length;
+            if(pmanager.free[i].length == 0) {
+                pmanager.frees--;
+                for(; i < pmanager.frees; i++) {
+                    pmanager.free[i] = pmanager.free[i + 1];
                 }
             }
             return head;
@@ -23,60 +24,60 @@ uint16_t mm_alloc_pages(MMFreePageManager *man, uint64_t length) {
 }
 
 /* success return 0 else -1 */
-int mm_free_pages(MMFreePageManager *man, uint64_t head, uint64_t length) {
+int pfree(uint64_t head, uint64_t length) {
     if(length < 1) return 0;
     uint64_t i;
-    for(i = 0; i < man->frees; i++) {
-        if(man->free[i].head > head) break;
+    for(i = 0; i < pmanager.frees; i++) {
+        if(pmanager.free[i].head > head) break;
     }
     if(i > 0) {
-        if(man->free[i - 1].head + man->free[i - 1].length == head) {
-            man->free[i - 1].length += length;
-            if(i < man->frees) {
-                if(head + length == man->free[i].head) {
-                    man->free[i - 1].length += man->free[i].length;
-                    man->frees--;
-                    for(; i < man->frees; i++) {
-                        man->free[i] = man->free[i+1];
+        if(pmanager.free[i - 1].head + pmanager.free[i - 1].length == head) {
+            pmanager.free[i - 1].length += length;
+            if(i < pmanager.frees) {
+                if(head + length == pmanager.free[i].head) {
+                    pmanager.free[i - 1].length += pmanager.free[i].length;
+                    pmanager.frees--;
+                    for(; i < pmanager.frees; i++) {
+                        pmanager.free[i] = pmanager.free[i+1];
                     }
                 }
             }
             return 0;
         }
     }
-    if(i < man->frees) {
-        if(head + length == man->free[i].head) {
-            man->free[i].head = head;
-            man->free[i].length += length;
+    if(i < pmanager.frees) {
+        if(head + length == pmanager.free[i].head) {
+            pmanager.free[i].head = head;
+            pmanager.free[i].length += length;
             return 0;
         }
     }
-    if (man->frees < MANAGER_FREE_MAX_SIZE) {
-        for(uint64_t j = man->frees; j > i; j--) {
-            man->free[j] = man->free[j - 1];
+    if (pmanager.frees < MANAGER_FREE_MAX_SIZE) {
+        for(uint64_t j = pmanager.frees; j > i; j--) {
+            pmanager.free[j] = pmanager.free[j - 1];
         }
-        man->frees++;
-        if(man->maxfress < man->frees) {
-            man->maxfress = man->frees;
+        pmanager.frees++;
+        if(pmanager.maxfress < pmanager.frees) {
+            pmanager.maxfress = pmanager.frees;
         }
-        man->free[i].head = head;
-        man->free[i].length = length;
+        pmanager.free[i].head = head;
+        pmanager.free[i].length = length;
         return 0;
     }
-    man->losts++;
-    man->lostsize += length;
+    pmanager.losts++;
+    pmanager.lostsize += length;
     return -1;
 }
 
-void mm_info(MMFreePageManager *man) {
+void pinfo(void) {
     uint64_t sum = 0;
-    printf("fress:%D maxfress:%D losts:%D lostsize:%D\n", man->frees, man->maxfress, man->losts, man->lostsize);
-    for(uint64_t i = 0; i < man->frees; i++) {
+    printf("fress:%D maxfress:%D losts:%D lostsize:%D\n", pmanager.frees, pmanager.maxfress, pmanager.losts, pmanager.lostsize);
+    for(uint64_t i = 0; i < pmanager.frees; i++) {
         printf("  [%D] %D-%D %D\n", i, 
-                   man->free[i].head, 
-                   man->free[i].head + man->free[i].length, 
-                   man->free[i].length);
-        sum += man->free[i].length;
+                   pmanager.free[i].head, 
+                   pmanager.free[i].head + pmanager.free[i].length, 
+                   pmanager.free[i].length);
+        sum += pmanager.free[i].length;
     }
     printf("sum:%D\n", sum);
 }

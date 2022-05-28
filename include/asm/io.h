@@ -44,8 +44,14 @@ __asm__ volatile ("inb %%dx,%%al\n" \
 _v; \
 })
 
+#define insb(buffer, nr, port)	\
+__asm__ __volatile__("cld;rep;insb;mfence;"::"d"(port),"D"(buffer),"c"(nr):"memory")
+
 #define insw(buffer, nr, port)	\
 __asm__ __volatile__("cld;rep;insw;mfence;"::"d"(port),"D"(buffer),"c"(nr):"memory")
+
+#define insq(buffer, nr, port)	\
+__asm__ __volatile__("cld;rep;insq;mfence;"::"d"(port),"D"(buffer),"c"(nr):"memory")
 
 #define outsw(buffer, nr, port)	\
 __asm__ __volatile__("cld;rep;outsw;mfence;"::"d"(port),"S"(buffer),"c"(nr):"memory")

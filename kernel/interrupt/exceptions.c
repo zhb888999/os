@@ -2,7 +2,7 @@
 #include <dev/serial.h>
 #include <arch/x86_64.h>
 #include <asm/io.h>
-#include <kernel/interrupt/interrupt.h>
+#include <kernel/interrupt.h>
 
 void _default_interrupt(void) {
     printsf("unkonw interrupt!\n");

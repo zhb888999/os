@@ -2,7 +2,7 @@ AS := as
 
 BUILD_DIR ?= ../../build
 OBJS_AS := entry.o
-OBJS_CC := exceptions.o irq.o
+OBJS_CC := exceptions.o irq.o interrupt.o
 
 all: $(OBJS_AS) $(OBJS_CC)
 
