@@ -1,5 +1,6 @@
 #include <mm/kmanager.h>
-#include <stdint.h>
+#include <dev/serial.h>
+
 
 BumpAllocator bumps[BUMP_ALLOCATER_NR];
 
@@ -7,10 +8,6 @@ static uint64_t bump_alloc(BumpAllocator *bump, uint64_t size, uint64_t align);
 static uint64_t noraml_malloc(uint64_t size, uint64_t align);
 static uint64_t large_malloc(uint64_t size);
 static void bump_free(BumpAllocator *bump, uint64_t addr);
-
-void init_bumps() {
-
-}
 
 uint64_t kmalloc(uint64_t size, uint64_t align) {
     return size <= BUMP_ALLOCATER_SIZE ? noraml_malloc(size, align) : large_malloc(size);
@@ -46,7 +43,7 @@ uint64_t large_malloc(uint64_t size) {
 }
 
 void kfree(uint64_t address) {
-    uint64_t bump_index = address >> BUMP_ALLOCATER_BITS;
+    uint64_t bump_index = BUMP_INDEX(address);
     if(!bumps[bump_index].continuous) {
         bump_free(bumps + bump_index, address);
         return;
@@ -73,3 +70,13 @@ inline static void bump_free(BumpAllocator *bump, uint64_t addr) {
     if(bump->allocations == 0) bump->next = bump->start;
 }
 
+void bumps_info(void) {
+    for(int i=0; i < BUMP_ALLOCATER_NR; i++) {
+        printsf(">> bump%d\n", i);
+        printsf("     bump.start       = 0x%X\n", bumps[i].start);
+        printsf("     bump.end         = 0x%X\n", bumps[i].end);
+        printsf("     bump.next        = 0x%X\n", bumps[i].next);
+        printsf("     bump.allocations = 0x%X\n", bumps[i].allocations);
+        printsf("     bump.continuous  = 0x%X\n", bumps[i].continuous);
+    }
+}

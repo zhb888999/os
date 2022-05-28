@@ -1,6 +1,6 @@
 #include <int.h>
 #include <mm/pmanager.h>
-#include <dev/vga.h>
+#include <dev/serial.h>
 
 static PageManager pmanager = {0};
 
@@ -71,13 +71,13 @@ int pfree(uint64_t head, uint64_t length) {
 
 void pinfo(void) {
     uint64_t sum = 0;
-    printf("fress:%D maxfress:%D losts:%D lostsize:%D\n", pmanager.frees, pmanager.maxfress, pmanager.losts, pmanager.lostsize);
+    printsf("fress:%D maxfress:%D losts:%D lostsize:%D\n", pmanager.frees, pmanager.maxfress, pmanager.losts, pmanager.lostsize);
     for(uint64_t i = 0; i < pmanager.frees; i++) {
-        printf("  [%D] %D-%D %D\n", i, 
+        printsf("  [%D] %D-%D %D\n", i, 
                    pmanager.free[i].head, 
                    pmanager.free[i].head + pmanager.free[i].length, 
                    pmanager.free[i].length);
         sum += pmanager.free[i].length;
     }
-    printf("sum:%D\n", sum);
+    printsf("sum:%D\n", sum);
 }

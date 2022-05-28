@@ -1,5 +1,7 @@
 BUILD_DIR ?= ../build
-OBJS := pmanager.o
+OBJS := pmanager.o kmanager.o
+
+all: $(OBJS)
 
 $(OBJS): %.o: %.c
 	@mkdir -p $(BUILD_DIR)
