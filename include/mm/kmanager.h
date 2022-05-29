@@ -20,5 +20,6 @@ typedef struct {
 uint64_t kmalloc(uint64_t size, uint64_t align);
 void kfree(uint64_t address);
 void bumps_info(void);
+void bumps_info2(int start, int end);
 
 #endif
