@@ -2,6 +2,7 @@
 #include <multiboot/multiboot2.h>
 #include <kernel/interrupt.h>
 #include <kernel/init.h>
+#include <kernel/time.h>
 #include <arch/x86_64.h>
 #include <asm/io.h>
 
@@ -13,6 +14,7 @@
 #include <apic/apic.h>
 #include <mm/kmanager.h>
 
+
 extern uint32_t multiboot_info;
 
 extern SegmentDescriptor64 gdt64_table[512];
@@ -21,6 +23,8 @@ extern InterruptDescriptor128 idt_table[256];
 extern uint64_t idt_ptr;
 extern uint64_t p4_table[512];
 extern uint64_t p3_table[512];
+extern uint8_t apu_start[];
+extern uint8_t apu_end[];
 
 extern BumpAllocator bumps[BUMP_ALLOCATER_NR];
 
@@ -116,4 +120,15 @@ static void init_apic(void) {
     keyboard_init();
     // mouse_init();
     disk_init();
+    hpet_init();
+    uint8_t *start_code;
+    start_code = (uint8_t *)0x0;
+    uint64_t size = apu_end - apu_start;
+    printsf("@ <0x%X> 0x%X-0x%X [%d]\n",start_code, apu_start, apu_end, size);
+    memcpy(apu_start, start_code, size);
+    // memcpy(start_code, start_code, size);
+    // for(uint64_t i=0; i < size; i++) 
+    // start_code[0] = _APU_boot_start[0];
+    printf(">>>>>> 0x%x\n", *start_code);
+    start_up();
 }

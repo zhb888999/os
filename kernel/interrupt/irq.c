@@ -6,18 +6,18 @@
 IRQDescriptor irq_descs[NR_IRQS] = {0};
 
 void __irq(IRQRegs *regs, uint64_t nr) {
-    printf("@ irq[%D|0x%X] in\n", nr, nr);
+    // printf("@ irq[%D|0x%X] in\n", nr, nr);
     IRQDescriptor *irq = &irq_descs[nr];
     if(irq->handler != 0) {
-        printf("@ irq[%D|0x%X] handler\n", nr, nr);
+        // printf("@ irq[%D|0x%X] handler\n", nr, nr);
         irq->handler(nr, irq->parameter, regs);
     }
     
     if(irq->controller != 0 && irq->controller->ack != 0) {
-        printf("@ irq[%D|0x%X] ack\n", nr, nr);
+        //printf("@ irq[%D|0x%X] ack\n", nr, nr);
         irq->controller->ack(nr);
     }
-    printf("@ irq[%D|0x%X] out\n", nr, nr);
+    //printf("@ irq[%D|0x%X] out\n", nr, nr);
     // __asm__ __volatile__(	
     //     "movq	$0x00,	%%rdx	\n\t" 
 	// 	"movq	$0x00,	%%rax	\n\t" 

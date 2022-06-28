@@ -74,8 +74,15 @@ long_mode_start:
     movw %ax, %fs
     movw %ax, %gs
 
+    movq $0x1b, %rcx
+    rdmsr
+    bt $8, %rax
+    jnc start_smp
     call kernel_main
 
+    hlt
+
+start_smp:
     movq $0x2f592f412f4b2f41, %rax
     movq %rax, 0xb8040
     hlt
@@ -111,3 +118,101 @@ idt_ptr:
 stack_bottom:
     .fill 2048, 8, 0
 stack_top:
+
+
+# boot APU
+.section .text
+.code16
+.global apu_start
+apu_start:
+apu_base = .
+    cli
+    wbinvd
+    mov %cs, %ax
+	mov	%ax, %ds
+	mov	%ax, %es
+	mov	%ax, %ss
+	mov	%ax, %fs
+	mov	%ax, %gs
+
+#	load idt gdt
+	
+	lidtl	apu_tmp_idt - apu_base
+	lgdtl	apu_tmp_gdt_ptr - apu_base
+
+#	enable protected mode
+
+	smsw	%ax
+	bts	$0	,%ax
+	lmsw	%ax
+
+#	go to 32 code
+	ljmpl	*(apu_code32_vector - apu_base)
+
+.code32
+.balign 4
+apu_code32:
+#	go to 64 code
+	mov	$0x10,	%ax
+	mov	%ax,	%ds
+	mov	%ax,	%es
+	mov	%ax,	%ss
+	mov	%ax,	%fs
+	mov	%ax,	%gs
+
+	leal (apu_tmp_stack_end - apu_base)(%esi),	%eax
+	movl %eax, %esp
+
+#	open PAE
+ 	movl $p4_table, %eax
+ 	movl %eax, %cr3
+
+ 	movl %cr4, %eax
+    or $0x20, %eax
+ 	movl %eax, %cr4
+
+	movl $0xC0000080, %ecx
+	rdmsr
+	or $0x100, %eax
+	wrmsr
+
+	movl %cr0, %eax
+    or $0x80000000, %eax
+	movl %eax,	%cr0
+
+    lgdt gdt_ptr
+    lidt idt_ptr
+
+    ljmp $0x08, $long_mode_start
+	
+
+.balign 4
+apu_tmp_idt:
+	.word	0
+	.word	0, 0
+
+apu_tmp_gdt_ptr:
+ 	.short	apu_tmp_gdt_end - apu_tmp_gdt - 1
+ 	.long	apu_tmp_gdt - apu_base
+
+.balign 4
+apu_tmp_gdt:
+ 	.quad	0
+ 	.quad	0x00cf9e000000ffff
+ 	.quad	0x00cf92000000ffff
+
+apu_tmp_gdt_end:
+
+.balign 4
+apu_code32_vector:
+	.long	apu_code32 - apu_base
+	.word	0x08, 0
+
+
+.balign 4
+apu_tmp_stack_start:
+    .fill 512, 8, 0
+apu_tmp_stack_end: 
+
+.global apu_end
+apu_end:

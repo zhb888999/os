@@ -7,11 +7,12 @@
 
 
 void disk_handler(uint64_t nr, uint64_t parameter, IRQRegs *regs) {
-	char data[300] = {0};
-	insb(&data, 256, PORT_DISK0_DATA);
-	data[256] = '\0';
-	for(int i=0; i<300; i++) printf("[%c]", data[i]);
+	// char data[300] = {0};
+	// insb(&data, 256, PORT_DISK0_DATA);
+	// data[256] = '\0';
+	// for(int i=0; i<300; i++) printf("[%c]", data[i]);
 	// printf("[[%s]]\n", data);
+    printf("Write One Sector Finished:%x\n", inb(PORT_DISK0_STATUS_CMD));
 };
 
 void disk_exit(void) {
@@ -44,12 +45,32 @@ void disk_init(void) {
 
     register_irq(DISK_IRQ_NR, &entry,  &disk_handler, 
         0, &disk_contorller, "disk0");
+    return;
+    outw(0, PORT_DISK0_ALT_STA_CTL);
+    while(inb(PORT_DISK0_STATUS_CMD) & DISK_STATUS_BUSY);
+    outw(0x40, PORT_DISK0_DEVICE);
 
-	outb(0, PORT_DISK0_ALT_STA_CTL);
-	outb(0, PORT_DISK0_SECTOR_CNT);
-	outb(0, PORT_DISK0_SECTOR_LOW);
-	outb(0, PORT_DISK0_SECTOR_MID);
-	outb(0, PORT_DISK0_SECTOR_HIGH);
-	outb(0xe0, PORT_DISK0_DEVICE);
-	outb(0xec, PORT_DISK0_STATUS_CMD);
+    // outw(0, PORT_DISK0_ERR_FEATURE);
+    outw(0, PORT_DISK0_SECTOR_CNT);
+    outw(0x0, PORT_DISK0_SECTOR_LOW);
+    printf(">>>>");
+    outw(0x0, PORT_DISK0_SECTOR_MID);
+    outw(0x0, PORT_DISK0_SECTOR_HIGH);
+
+    // outw(0, PORT_DISK0_ERR_FEATURE);
+    outw(1, PORT_DISK0_SECTOR_CNT);
+    outw(0x0, PORT_DISK0_SECTOR_LOW);
+    outw(0x0, PORT_DISK0_SECTOR_MID);
+    outw(0x4, PORT_DISK0_SECTOR_HIGH);
+
+    while(!(inb(PORT_DISK0_STATUS_CMD) & DISK_STATUS_READY));
+    printf("Send CMD:0x%x\n", inb(PORT_DISK0_STATUS_CMD));
+
+    outw(0x34, PORT_DISK0_STATUS_CMD);
+
+    while(!(inb(PORT_DISK0_STATUS_CMD) & DISK_STATUS_REQ));
+    char a[512];
+    for(int i=0; i < 512; i++) a[i] = 0xa5;
+    outsw(&a, PORT_DISK0_DATA, 512);
+    printf("Send!\n");
 }

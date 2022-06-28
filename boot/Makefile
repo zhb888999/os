@@ -1,7 +1,9 @@
 AS := as
 
 BUILD_DIR ?= ../build
-OBJS := boot.o
+OBJS := boot.o 
+
+all: $(OBJS)
 
 $(OBJS): %.o: %.s
 	@mkdir -p $(BUILD_DIR)

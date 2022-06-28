@@ -176,6 +176,7 @@ void setup_pit(void);
 #define hlt() __asm__("hlt"::)
 #define sti() __asm__ ("sti"::)
 #define cti() __asm__ ("cti"::)
+#define cli() __asm__ ("cli"::)
 #define nop() __asm__ ("nop"::)
 
 #define lfence() __asm__ __volatile__ ("lfence":::"memory")

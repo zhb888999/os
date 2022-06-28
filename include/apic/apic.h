@@ -30,6 +30,7 @@ typedef struct {
 
 void init_localapic(void);
 void init_ioapic(void);
+void start_up(void);
 void enable_ioapic(void);
 void enable_imcr(void);
 

@@ -98,3 +98,21 @@ void init_localapic(void) {
     printf("set LVT PPR:0x%x\n", lmsr);
 
 }
+
+void start_up(void) {
+    __asm__ __volatile__(
+        "movq $0x00,    %%rdx \n\t"
+        "movq $0xc4500, %%rax \n\t"
+        "movq $0x830,   %%rcx \n\t"
+        "wrmsr                \n\t"
+        "movq $0x00,    %%rdx \n\t"
+        "movq $0xc4600, %%rax \n\t"
+        "movq $0x830,   %%rcx \n\t"
+        "wrmsr                \n\t"
+        "movq $0x00,    %%rdx \n\t"
+        "movq $0xc4600, %%rax \n\t"
+        "movq $0x830,   %%rcx \n\t"
+        "wrmsr                \n\t"
+        :::"memory"
+    );
+}
